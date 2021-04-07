@@ -5,6 +5,7 @@ const app = express();
 const server = http.createServer(app);
 const port = process.env.PORT;
 
-app.get('/', (req, res) => res.send('Hello World!'))
+app.use(express.json());
+app.use('/api',require('./api/router'));
 
 server.listen(port, () => console.log(`Example app listening on port ${port}!`))
