@@ -55,6 +55,17 @@ const IS_AUTHENTICATED = (req,res,next)=>{
                     }
                 });
             }
+            if(result[0].isverified === false){
+
+                return res.status(401).json({
+                    status:401,
+                    msg:{
+                        code:401,
+                        message:'user in not authorized to sign-in!'
+                    }
+                });
+
+            }
 
         });
 
