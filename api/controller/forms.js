@@ -104,4 +104,15 @@ const getone = async (req,res)=>{
 
 }
 
+const delone = async (req,res)=>{
+
+    const {auth_token,form_id} = req.body;
+    const ip = req.connection.remoteAddress;
+    const endpoint = req.originalUrl;
+    const {user_id} = await jwt.verify(auth_token,process.env.JWT_KEY);
+    const info = `deleting forms with form_id : ${form_id} for user with user_id ${user_id}`;
+    let status = '';
+
+}
+
 module.exports = { create,getall,getone };
