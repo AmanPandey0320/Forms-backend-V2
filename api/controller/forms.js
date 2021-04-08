@@ -1,4 +1,4 @@
-const { CREATE_FORM, GET_ALL_FORMS, GET_ONE_FORM } = require("../services/forms");
+const { CREATE_FORM, GET_ALL_FORMS, GET_ONE_FORM, DELETE_FORM } = require("../services/forms");
 const logs = require('../services/logs');
 const jwt = require('jsonwebtoken');
 
@@ -113,6 +113,27 @@ const delone = async (req,res)=>{
     const info = `deleting forms with form_id : ${form_id} for user with user_id ${user_id}`;
     let status = '';
 
+    try {
+
+        const delete_form_data = await DELETE_FORM(form_id);
+
+        if(delete_form_data.status){
+
+            status = `form : ${form_id} deleted by user : ${user_id}`;
+            logs.add_log(ip,endpoint,info,status);
+            return res.json(delete_form_data.msg);
+
+        }else{
+            status = `operation failed for form : ${form_id} with message : ${delete_form_data.msg.message}`;
+            logs.add_log(ip,endpoint,info,status);
+            return res.status(500).json(delete_form_data.msg);
+        }
+        
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json(error);
+    }
+
 }
 
-module.exports = { create,getall,getone };
+module.exports = { create,getall,getone,delone };

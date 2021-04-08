@@ -60,7 +60,7 @@ const GET_ALL_FORMS = async ({user_id})=>{
                 }
 
                 if(result === undefined || result.length === 0 || result.affectedRows < 1){
-                    return result({
+                    return reject({
                         status:false,
                         msg:{
                             code:500,
