@@ -15,34 +15,40 @@ const IS_FORM_TO_USER = async (req,res,next)=>{
 
         const sql = `SELECT * FROM form WHERE form_id = ?`;
         const { user_id } = await jwt.verify(auth_token,jwt_key);
-        const result = await pool.query(sql,[form_id]);
-        const form = result[0];
+        
+        pool.query(sql,[form_id],(error,result)=>{
 
-        if(form === undefined || form.form_id === undefined){
-            status = `form with id ${form_id} does not exists`;
-            logs.add_log(ip,endpoint,info,status);
-            return res.status(404).json({
-                code:404,
-                message:'No such form exists'
-            });
-        }
+            if(error){
+                console.log(error);
+                status=`operation failed with an error : ${JSON.stringify(error)}`;
+                logs.add_log(ip,endpoint,info,status);
+                return res.sendStatus(500);
+            }
+            
+            const form = result[0];
+            if(form === undefined || form.form_id === undefined){
+                status = `form with id ${form_id} does not exists`;
+                logs.add_log(ip,endpoint,info,status);
+                return res.sendStatus(404);
+            }
+    
+            if(form.user_id != user_id){
+                status=`unauthorized access to form : ${form_id} belonging to user : ${form.user_id} by user ${user_id}`;
+                logs.add_log(ip,endpoint,info,status);
+                return res.sendStatus(401);
+            }
 
-        if(form.user_id != user_id){
-            status=`unauthorized access to form : ${form_id} belonging to user : ${form.user_id} by user ${user_id}`;
-            logs.add_log(ip,endpoint,info,status);
-            return res.status(401).json({
-                code:401,
-                message:'you are not authorized to delete this form'
-            });
-        }
+            next();
 
-        next();
+        });
+
+        
         
     } catch (error) {
         console.log(error);
         status=`operation failed with an error : ${JSON.stringify(error)}`;
         logs.add_log(ip,endpoint,info,status);
-        return res.status(500).json(error);
+        return res.sendStatus(500);
     }
 }
 
