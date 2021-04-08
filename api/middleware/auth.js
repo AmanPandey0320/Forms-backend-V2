@@ -5,6 +5,17 @@ const jwt_key = process.env.JWT_KEY;
 const IS_AUTHENTICATED = (req,res,next)=>{
 
     const {auth_token} = req.body;
+
+    if(auth_token === null  || auth_token === undefined){
+        return res.status(401).json({
+            status:401,
+            msg:{
+                code:401,
+                message:'Not a valid user'
+            }
+        });
+    }
+
     jwt.verify(auth_token,jwt_key,(err,decode)=>{
         if(err){
             console.log(err);
@@ -14,6 +25,16 @@ const IS_AUTHENTICATED = (req,res,next)=>{
             });
         }
         const {user_id} = decode;
+
+        if(user_id === null || user_id === undefined){
+            return res.status(400).json({
+                status:400,
+                msg:{
+                    code:400,
+                    message:'either the token in invalid or it has expired'
+                }
+            })
+        }
 
         const sql = `SELECT * FROM users WHERE user_id=?`;
         pool.query(sql,[user_id],(err,result)=>{
@@ -25,8 +46,17 @@ const IS_AUTHENTICATED = (req,res,next)=>{
                 });
 
             }
+            if(result.length === 0){
+                return res.status(401).json({
+                    status:401,
+                    msg:{
+                        code:401,
+                        message:'No user found!'
+                    }
+                });
+            }
 
-        })
+        });
 
     });
 

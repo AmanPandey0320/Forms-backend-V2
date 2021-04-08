@@ -13,7 +13,7 @@ const CREATE_USER = async ({google_token,name},callback)=>{
                 if(err){
                     console.log(err);
                     return callback({
-                        status:500,
+                        status:false,
                         msg:err
                     });
                 }
@@ -21,8 +21,8 @@ const CREATE_USER = async ({google_token,name},callback)=>{
                 const auth_token = await jwt.sign({user_id},jwt_key);
 
                 return callback(null,{
-                    status:200,
-                    msg:auth_token
+                    status:true,
+                    msg:{auth_token,user_id}
                 });
 
             });
@@ -30,7 +30,7 @@ const CREATE_USER = async ({google_token,name},callback)=>{
         }catch(err){
             console.log(err);
             return callback({
-                status:500,
+                status:false,
                 msg:err
             });
         }
@@ -43,13 +43,13 @@ const VERIFY_USER = async (google_token,callback)=>{
             if(err){
                 console.log(err);
                 return callback({
-                    status:500,
+                    status:false,
                     msg:err
                 });
             }
             if(result.length === 0){
                 return callback({
-                    status:404,
+                    status:false,
                     msg:{
                         code:404,
                         message:'No user found!'
@@ -60,15 +60,15 @@ const VERIFY_USER = async (google_token,callback)=>{
             const auth_token = await jwt.sign({user_id},jwt_key);
 
             return callback(null,{
-                status:200,
-                msg:auth_token
+                status:true,
+                msg:{auth_token,user_id}
             });
         });
 
     }catch(err){
         console.log(err);
         return callback({
-            status:500,
+            status:false,
             msg:err
         });
     }
