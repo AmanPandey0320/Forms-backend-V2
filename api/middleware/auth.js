@@ -52,6 +52,7 @@ const IS_AUTHENTICATED = async (req,res,next)=>{
 
             }
 
+            req.user=user;
             next();
 
         });

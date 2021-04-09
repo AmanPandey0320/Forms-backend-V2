@@ -38,6 +38,7 @@ const IS_FORM_TO_USER = async (req,res,next)=>{
                 return res.sendStatus(401);
             }
 
+            req.formData = form;
             next();
 
         });
