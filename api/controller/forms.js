@@ -1,4 +1,4 @@
-const { CREATE_FORM, GET_ALL_FORMS, GET_ONE_FORM, DELETE_FORM } = require("../services/forms");
+const { CREATE_FORM, GET_ALL_FORMS, GET_ONE_FORM, DELETE_FORM, UPDATE_FORM } = require("../services/forms");
 const logs = require('../services/logs');
 const jwt = require('jsonwebtoken');
 
@@ -131,9 +131,52 @@ const delone = async (req,res)=>{
         
     } catch (error) {
         console.log(error);
+        status = `operation failed with an error : ${JSON.stringify(error)}`;
+        logs.add_log(ip,endpoint,info,status);
         return res.status(500).json(error);
     }
 
 }
 
-module.exports = { create,getall,getone,delone };
+const updateone = async (req,res)=>{
+
+    const {auth_token,form_id} = req.body;
+    const ip = req.connection.remoteAddress;
+    const endpoint = req.originalUrl;
+    const {user_id} = await jwt.verify(auth_token,process.env.JWT_KEY);
+    const info = `updating forms with form_id : ${form_id} for user with user_id ${user_id}`;
+    let status = '';
+    const form = req.formData;
+    const data = req.body.data || form.data;
+    const title = req.body.title || form.title;
+    const theme = req.body.theme || form.theme;
+    const desc = req.body.desc || form.description;
+
+    // console.log(form.description);
+    
+    try {
+
+
+        const update_result = await UPDATE_FORM({form_id,data,title,desc,theme});
+
+        if(update_result.status){
+            status =`form with id : ${form_id} updated by user ${req.user.user_id}`;
+            logs.add_log(ip,endpoint,info,status);
+            return res.json(update_result);
+        }else{
+            status = `updating failed with message: ${update_result.msg.message} for form with id : ${form_id}`;
+            logs.add_log(ip,endpoint,info,status);
+            return res.status(500).json(update_result).send();
+        }
+        
+    } catch (error) {
+        console.log(error,"aman");
+        status = `operation failed with an error ${JSON.stringify(error)}`;
+        logs.add_log(ip,endpoint,info,status);
+        return res.status(500).json(error);
+        
+    }
+
+}
+
+module.exports = { create,getall,getone,delone,updateone };

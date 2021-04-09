@@ -162,4 +162,60 @@ const DELETE_FORM = async (form_id) => {
     })
 }
 
-module.exports = { CREATE_FORM,GET_ALL_FORMS,GET_ONE_FORM,DELETE_FORM };
+const UPDATE_FORM = async ({form_id,data,title,desc,theme})=>{
+
+    return new Promise(async (resolve,reject)=>{
+        
+        try {
+
+            const sql = `UPDATE form SET data = ?,title = ?,description = ?,theme = ?,updated_at = ? WHERE form_id = ?`;
+            const updated_at = new Date();
+            
+            pool.query(sql,[data,title,desc,theme,updated_at,form_id],(err,result)=>{
+
+                if(err){
+                    console.log(err);
+                    return reject({
+                        status:false,
+                        msg:err
+                    });
+                }
+
+                // console.log(result);
+
+                if(result.affectedRows < 1){
+                    return reject({
+                        status:false,
+                        msg:{
+                            code:400,
+                            message:'unable to update the form'
+                        }
+                    });
+                }
+    
+                return resolve({
+                    status:true,
+                    msg:{
+                        code:200,
+                        message:'form updated'
+                    }
+                });
+
+            });
+
+            
+            
+        } catch (error) {
+            console.log(error);
+            return reject({
+                status:false,
+                msg:error
+            });
+            
+        }
+
+    });
+
+}
+
+module.exports = { CREATE_FORM,GET_ALL_FORMS,GET_ONE_FORM,DELETE_FORM,UPDATE_FORM };
