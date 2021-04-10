@@ -60,4 +60,37 @@ const uploadToCloud = async (file) => {
 
 }
 
-module.exports = { uploadToCloud };
+const downloadFromCloud = async (name) =>{
+    return new Promise (async (resolve,reject) => {
+        if(!name){
+            return reject({
+                status:false,
+                msg:{
+                    code:400,
+                    message:'no file name provided'
+                }
+            });
+        }
+
+        const downloadTask = bucket.file(name);
+        try {
+
+            const extension = name.split('.')[1];
+            const file = await downloadTask.download();
+            return resolve({
+                status:true,
+                msg:file
+            });
+            
+        } catch (error) {
+            console.log(error);
+            return reject({
+                status:false,
+                msg:error
+            });
+        }
+
+    });
+}
+
+module.exports = { uploadToCloud,downloadFromCloud };

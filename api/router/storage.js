@@ -4,7 +4,7 @@ const UPLOADER = require('../middleware/storage');
 const { IS_AUTHENTICATED } = require('../middleware/auth');
 const router = Router();
 
-router.post('/upload',UPLOADER,upload);
+router.post('/upload',UPLOADER,IS_AUTHENTICATED,upload);
 router.post('/download',IS_AUTHENTICATED,download);
 
 module.exports = router;
