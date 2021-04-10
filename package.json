@@ -18,10 +18,13 @@
   },
   "homepage": "https://github.com/AmanPandey0320/Forms-backend-V2#readme",
   "dependencies": {
+    "@google-cloud/storage": "^5.8.3",
     "bcrypt": "^5.0.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "googleapis": "^71.0.0",
     "jsonwebtoken": "^8.5.1",
+    "multer": "^1.4.2",
     "mysql": "^2.18.1",
     "nanoid": "^3.1.22",
     "uuid": "^8.3.2"
