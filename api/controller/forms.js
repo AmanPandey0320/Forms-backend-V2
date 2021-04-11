@@ -3,7 +3,7 @@ const logs = require('../services/logs');
 const jwt = require('jsonwebtoken');
 
 const create = async (req,res) => {
-    const {auth_token,data,title,desc,theme} = req.body;
+    const {auth_token,data,title,desc,theme,istest,duration,ans_key} = req.body;
     const ip = req.connection.remoteAddress;
     const endpoint = req.originalUrl;
     const {user_id} = await jwt.verify(auth_token,process.env.JWT_KEY);
@@ -12,7 +12,7 @@ const create = async (req,res) => {
 
     try {
 
-        const create_form_res = await CREATE_FORM({user_id,data,title,desc,theme});
+        const create_form_res = await CREATE_FORM({user_id,data,title,desc,theme,istest,duration,ans_key});
 
         if(create_form_res.status){
 
@@ -147,17 +147,20 @@ const updateone = async (req,res)=>{
     const info = `updating forms with form_id : ${form_id} for user with user_id ${user_id}`;
     let status = '';
     const form = req.formData;
-    const data = req.body.data || form.data;
+    const data = req.body.data || JSON.parse(form.data);
     const title = req.body.title || form.title;
     const theme = req.body.theme || form.theme;
     const desc = req.body.desc || form.description;
+    const istest = req.body.istest || form.istest;
+    const duration = req.body.duration || form.duration;
+    const ans_key = req.body.ans_key || JSON.parse(form.ans_key)
 
     // console.log(form.description);
     
     try {
 
 
-        const update_result = await UPDATE_FORM({form_id,data,title,desc,theme});
+        const update_result = await UPDATE_FORM({form_id,data,title,desc,theme,istest,duration,ans_key});
 
         if(update_result.status){
             status =`form with id : ${form_id} updated by user ${req.user.user_id}`;

@@ -1,15 +1,15 @@
 const pool = require('../../config/db');
 const { v4 } = require('uuid');
 
-const CREATE_FORM = async ({user_id,data,title,desc,theme}) => {
+const CREATE_FORM = async ({user_id,data,title,desc,theme,istest,duration,ans_key}) => {
 
     return new Promise(async (resolve,reject) => {
         try {
 
             const form_id = v4();
             const updated_at = new Date();
-            const sql = `INSERT INTO form (form_id,title,theme,description,data,user_id,updated_at) VALUES (?,?,?,?,?,?,?)`;
-            pool.query(sql,[form_id,title,theme,desc,JSON.stringify(data),user_id,updated_at],(err,result)=>{
+            const sql = `INSERT INTO form (form_id,title,theme,description,data,user_id,updated_at,istest,duration,ans_key) VALUES (?,?,?,?,?,?,?,?,?,?)`;
+            pool.query(sql,[form_id,title,theme,desc,JSON.stringify(data),user_id,updated_at,istest,duration,JSON.stringify(ans_key)],(err,result)=>{
                 if(err){
                     console.log(err);
                     return reject({
@@ -162,16 +162,16 @@ const DELETE_FORM = async (form_id) => {
     })
 }
 
-const UPDATE_FORM = async ({form_id,data,title,desc,theme})=>{
+const UPDATE_FORM = async ({form_id,data,title,desc,theme,ans_key,istest,duration})=>{
 
     return new Promise(async (resolve,reject)=>{
         
         try {
 
-            const sql = `UPDATE form SET data = ?,title = ?,description = ?,theme = ?,updated_at = ? WHERE form_id = ?`;
+            const sql = `UPDATE form SET data = ?,title = ?,description = ?,theme = ?,updated_at = ?,ans_key = ?,istest = ?,duration = ? WHERE form_id = ?`;
             const updated_at = new Date();
             
-            pool.query(sql,[data,title,desc,theme,updated_at,form_id],(err,result)=>{
+            pool.query(sql,[JSON.stringify(data),title,desc,theme,updated_at,JSON.stringify(ans_key),istest,duration,form_id],(err,result)=>{
 
                 if(err){
                     console.log(err);
