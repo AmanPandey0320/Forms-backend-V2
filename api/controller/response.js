@@ -1,5 +1,5 @@
 const logs = require('../services/logs');
-const { submit_response } = require('../services/response');
+const { submit_response, edit_response } = require('../services/response');
 
 const SUBMIT = async (req,res)=>{
     const {form_id,response} = req.body;
@@ -32,8 +32,44 @@ const SUBMIT = async (req,res)=>{
 
 }
 
-const FETCH_ONE = async (req,res)=>{
-    res.send('fetch-one')
+const EDIT_ONE = async (req,res) => {
+
+    const {response_id,response,form_id} = req.body;
+    const ip = req.connection.remoteAddress;
+    const endpoint = req.originalUrl;
+    const {user_id} = req.user
+    const info = `editing responce with id : ${response_id} for user with user_id ${user_id} for form : ${form_id}`;
+    let status = '';
+
+    try {
+
+        const upadate_res = await edit_response({response_id,response});
+
+        if(upadate_res.status){
+
+            status = `response edited successfully`;
+            logs.add_log(ip,endpoint,info,status);
+            return res.send(upadate_res.msg);
+
+        }else{
+            status = `operation failed with an error : ${JSON.stringify(upadate_res.msg)}`;
+            logs.add_log(ip,endpoint,info,status);
+            return res.status(500).send(upadate_res.msg);
+        }
+        
+    } catch (error) {
+        console.log(error);
+        status = `operation failed with an error : ${JSON.stringify(error)}`;
+        logs.add_log(ip,endpoint,info,status);
+        return res.status(500).send(error);
+    }
+
 }
 
-module.exports = { SUBMIT,FETCH_ONE };
+const FETCH_ONE = async (req,res)=>{
+    const response = JSON.parse(req.form_response.response);
+    req.form_response.response = response;
+    res.send(req.form_response);
+}
+
+module.exports = { SUBMIT,FETCH_ONE,EDIT_ONE };

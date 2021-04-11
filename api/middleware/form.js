@@ -97,13 +97,13 @@ const IS_VALID_RESPONSE = async (req,res,next) => {
     const ip = req.connection.remoteAddress;
     const endpoint = req.originalUrl;
     const {user_id} = req.user;
-    const info = `fetching response with form_id : ${response_id} for user  ${user_id} form ${form_id}`;
+    const info = `fetching response with id : ${response_id} for user  ${user_id} form ${form_id}`;
     let status = '';
 
     try {
 
-        const sql = `SELECT * FROM response WHERE response_id = ?`;
-        pool.query(sql,[response_id],(err,result)=>{
+        const sql = `SELECT response.* FROM response WHERE response.form_id = ? AND response.user_id = ?`;
+        pool.query(sql,[form_id,user_id],(err,result)=>{
             if(err){
                 console.log(err);
                 status = `operation failed with error : ${JSON.stringify(err)}`;
@@ -116,6 +116,8 @@ const IS_VALID_RESPONSE = async (req,res,next) => {
                 return res.sendStatus(404);
             }
 
+            req.form_response = result[0];
+
             next();
         });
         
@@ -127,5 +129,7 @@ const IS_VALID_RESPONSE = async (req,res,next) => {
     }
 
 }
+
+
 
 module.exports = { IS_FORM_TO_USER,IS_FORM_VALID,IS_VALID_RESPONSE };
