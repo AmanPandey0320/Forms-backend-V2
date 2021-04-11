@@ -5,6 +5,8 @@ const jwt_key = process.env.JWT_KEY;
 
 const CREATE_USER = async ({google_token,name},callback)=>{
         try{
+
+
             const user_id = await v4(16);
             const updated_at = new Date();
             const sql = `INSERT INTO users (user_id,name,google_token,isverified,updated_at) VALUES (?,?,?,?,?)`;
@@ -34,6 +36,61 @@ const CREATE_USER = async ({google_token,name},callback)=>{
                 msg:err
             });
         }
+}
+const GOOGLE_ENTRY = async ({google_token,name})=>{
+    return new Promise (async (resolve,reject) => {
+        try{
+
+            const pre_sql = `SELECT user_id FROM users WHERE google_token = ?`;
+            pool.query(pre_sql,[google_token],async (err,result)=>{
+                if(err){
+                    console.log(err);
+                    return reject({
+                        status:false,
+                        msg:err
+                    });
+                }
+                if(result.length === 0){
+                    //create user
+                    const user_id = await v4(16);
+                    const updated_at = new Date();
+                    const sql = `INSERT INTO users (user_id,name,google_token,isverified,updated_at) VALUES (?,?,?,?,?)`;
+
+                    pool.query(sql,[user_id,name,google_token,true,updated_at],async (err,result)=>{
+                        if(err){
+                            console.log(err);
+                            return reject({
+                                status:false,
+                                msg:err
+                            });
+                        }
+        
+                        const auth_token = await jwt.sign({user_id},jwt_key);
+        
+                        return resolve({
+                            status:true,
+                            msg:{auth_token,user_id}
+                        });
+        
+                    });
+                }
+                const {user_id} = result[0];
+                const auth_token = await jwt.sign({user_id},jwt_key);
+
+                return resolve({
+                    status:true,
+                    msg:{auth_token,user_id}
+                });
+            });
+
+        }catch(err){
+            console.log(err);
+            return reject({
+                status:false,
+                msg:err
+            });
+        }
+    });
 }
 const VERIFY_USER = async (google_token,callback)=>{
     try{
@@ -74,4 +131,4 @@ const VERIFY_USER = async (google_token,callback)=>{
     }
 }
 
-module.exports = { CREATE_USER,VERIFY_USER };
+module.exports = { CREATE_USER,VERIFY_USER,GOOGLE_ENTRY };

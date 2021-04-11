@@ -59,7 +59,7 @@ const GET_ALL_FORMS = async ({user_id})=>{
                     });
                 }
 
-                if(result === undefined || result.length === 0 || result.affectedRows < 1){
+                if(result === undefined){
                     return reject({
                         status:false,
                         msg:{

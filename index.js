@@ -14,6 +14,7 @@ const corsOptions = {
     credentials:true
 }
 
+
 app.use(async function(req, res, next) {
     res.header('Access-Control-Allow-Origin','http://localhost:3000' );
     res.header('Access-Control-Allow-Credentials','true');
@@ -22,6 +23,7 @@ app.use(async function(req, res, next) {
     next();
   });
 
+app.use(cors(corsOptions));
 app.use('/api',require('./api/router'));
 
 server.listen(port, () => console.log(`Example app listening on port ${port}!`))
