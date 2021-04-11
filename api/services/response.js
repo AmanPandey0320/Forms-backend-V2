@@ -134,20 +134,54 @@ const get_response = async (response_id) => {
     });
 }
 
-// const getAllResponse = async (form_id,is_test) => {
-//     return new Promise (async(resolve,reject)=>{
-//         try {
+const getAllResponse = async (form_id,is_test) => {
+    return new Promise (async(resolve,reject)=>{
+        try {
 
-//             const sql = `SELECT * FROM response WHERE `
+            let sql = `SELECT response_id,response,submitted_at,edited_at FROM response WHERE form_id = ?`;
+            if(is_test){
+                sql = `SELECT response_id,user_id,response,submitted_at,edited_at FROM response WHERE form_id = ?`
+            }
+
+            pool.query(sql,[form_id],(err,result)=>{
+                if(err){
+                    console.log(err);
+                    return reject({
+                        status:false,
+                        msg:err 
+                    });
+                }
+                if(result === undefined || result.length === 0){
+                    return reject({
+                        status:false,
+                        msg:{
+                            code:500,
+                            message:'unable to fetch data'
+                        }
+                    });
+                }
+
+                let responses = [],response;
+                result.forEach(element => {
+                    response = element;
+                    response.response = JSON.parse(element.response);
+                    responses.push(response);
+                });
+
+                return resolve({
+                    status:true,
+                    msg:responses
+                });
+            });
             
-//         } catch (error) {
-//             console.log(error);
-//             return reject({
-//                 status:false,
-//                 msg:error
-//             });
-//         }
-//     });
-// }
+        } catch (error) {
+            console.log(error);
+            return reject({
+                status:false,
+                msg:error
+            });
+        }
+    });
+}
 
-module.exports = { submit_response,edit_response,get_response };
+module.exports = { submit_response,edit_response,get_response,getAllResponse };

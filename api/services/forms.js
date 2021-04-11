@@ -69,9 +69,18 @@ const GET_ALL_FORMS = async ({user_id})=>{
                     });
                 }
 
+                let form,forms = [];
+
+                result.forEach(element => {
+                    form = element;
+                    form.data = JSON.parse(element.data);
+                    form.ans_key = JSON.parse(element.ans_key);
+                    forms.push(form);
+                });
+
                 return resolve({
                     status:true,
-                    msg:{length:result.length,result:result}
+                    msg:{length:forms.length,result:forms}
                 });
             });
             
@@ -111,9 +120,18 @@ const GET_ONE_FORM = async ({form_id})=>{
                     });
                 }
 
+                let form,forms = [];
+
+                result.forEach(element => {
+                    form = element;
+                    form.data = JSON.parse(element.data);
+                    form.ans_key = JSON.parse(element.ans_key);
+                    forms.push(form);
+                });
+
                 return resolve({
                     status:true,
-                    msg:{length:result.length,result:result}
+                    msg:{length:forms.length,result:forms}
                 });
             });
             

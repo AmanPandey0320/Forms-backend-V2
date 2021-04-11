@@ -1,5 +1,5 @@
 const logs = require('../services/logs');
-const { submit_response, edit_response } = require('../services/response');
+const { submit_response, edit_response, getAllResponse } = require('../services/response');
 
 const SUBMIT = async (req,res)=>{
     const {form_id,response} = req.body;
@@ -67,9 +67,49 @@ const EDIT_ONE = async (req,res) => {
 }
 
 const FETCH_ONE = async (req,res)=>{
+    const { form_id,response_id } = req.body;
+    const ip = req.connection.remoteAddress;
+    const endpoint = req.originalUrl;
+    const {user_id} = req.user;
+    const info = `fetching response with id : ${response_id} for user  ${user_id} form ${form_id}`;
+    let status = 'operation successfull';
     const response = JSON.parse(req.form_response.response);
     req.form_response.response = response;
+    logs.add_log(ip,endpoint,info,status);
     res.send(req.form_response);
 }
 
-module.exports = { SUBMIT,FETCH_ONE,EDIT_ONE };
+const FETCH_ALL = async(req,res) => {
+    const { form_id } = req.body;
+    const ip = req.connection.remoteAddress;
+    const endpoint = req.originalUrl;
+    const {user_id} = req.user;
+    const {is_test} = req.formData;
+    const info = `fetching all response for user  ${user_id} form ${form_id}`;
+    let status = '';
+
+    try{
+
+        const all_response = await getAllResponse(form_id,is_test);
+
+        if(all_response.status){
+
+            status = `all response sent to the owner`;
+            logs.add_log(ip,endpoint,info,status);
+            return res.send({response:all_response.msg});
+
+        }else{
+            status = `operation failed with error : ${all_response.msg}`;
+            logs.add_log(ip,endpoint,info,status);
+            return res.status(500).send(all_response.msg);
+        }
+
+    }catch(err){
+        console.log(err);
+        status = `operation failed with error : ${JSON.stringify(err)}`;
+        return res.status(500).send(err);
+    }
+
+}
+
+module.exports = { SUBMIT,FETCH_ONE,EDIT_ONE,FETCH_ALL };
