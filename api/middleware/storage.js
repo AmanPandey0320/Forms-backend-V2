@@ -6,6 +6,6 @@ const storage = multer.memoryStorage({
     }
 });
 
-const uploads =multer(storage).single('file');
+const uploads =multer({storage}).single('file');
 
 module.exports = uploads;

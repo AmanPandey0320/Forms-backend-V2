@@ -9,7 +9,7 @@ const port = process.env.PORT;
 app.use(express.json());
 
 const corsOptions = {
-    origin: 'http://localhost:3000',
+    origin: ['http://localhost:3000','https://forms-api-306713.web.app'],
     optionsSuccessStatus: 200 ,// For legacy browser support
     credentials:true
 }
