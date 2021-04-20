@@ -21,9 +21,10 @@ app.use(async function(req, res, next) {
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
 
     next();
-  });
+});
 
 app.use(cors(corsOptions));
+app.use('/admin',require('./Routes/index'));
 app.use('/api',require('./api/router'));
 
 server.listen(port, () => console.log(`Example app listening on port ${port}!`))
