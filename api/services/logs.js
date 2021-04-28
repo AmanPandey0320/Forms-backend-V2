@@ -43,4 +43,33 @@ const add_log = async(ip,endpoint,info,status)=>{
     });
 }
 
-module.exports = { add_log };
+const get_log = async () => {
+    return new Promise ((resolve,reject) => {
+        try {
+
+            const sql = `SELECT * FROM logs ORDER BY timestamp DESC`;
+            pool.query(sql,(err,result)=>{
+                if(err){
+                    console.log(err);
+                    return reject({
+                        status:false,
+                        msg:err.message
+                    });
+                }
+                return resolve({
+                    status:true,
+                    msg:result
+                });
+            });
+            
+        } catch (error) {
+            console.log(error);
+            return reject({
+                status:false,
+                msg:error.message
+            });
+        }
+    });
+}
+
+module.exports = { add_log,get_log };

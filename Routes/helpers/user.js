@@ -15,7 +15,11 @@ const IS_SUPER = async (req,res,next) => {
 const IS_ADMIN = async (req,res,next) => {
     try {
         const  { auth_token } = req.body;
-        const { admin_id } = await jwt.verify(auth_token,jwt_key);
+        const decode = await jwt.verify(auth_token,jwt_key);
+
+        // console.log(decode);
+
+        const {admin_id} = decode;
         
         const sql = `SELECT * FROM admin WHERE admin_id = ?`;
         const bind = [admin_id];
@@ -26,13 +30,16 @@ const IS_ADMIN = async (req,res,next) => {
                 return res.sendStatus(500);
             }
 
+            // console.log(result);
+
             if(result.length == 0) return res.sendStatus(401);
 
             const admin = result[0];
             if(admin.enabled){
+                req.adminuser = admin;
                 next();
             }else{
-                req.adminuser = admin;
+                
                 return res.sendStatus(401);
             }
         });

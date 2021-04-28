@@ -22,26 +22,36 @@ const ADMIN_LOGIN = async (req,res) => {
                 console.log(error);
                 logs.add_log(ip,endpoint,`creating admin ${username}`,error.message);
                 return res.send({
-                    status:0,
+                    ok:false,
                     message:error.message
                 });
             }
 
+            if(result.length === 0){
+                logs.add_log(ip,endpoint,`loggin by ${username}`,'no user found with such username');
+                return res.send({
+                    ok:false,
+                    message:'no user found with such username'
+                })
+            }
+
             const auth = await bcrypt.compare(password,result[0].password);
+
+            // console.log(result[0].admin_id);
 
             if(auth){
                 if(result[0].enabled){
-                    const token = await jwt.sign({admin_id:result.admin_id},jwt_key);
-                    logs.add_log(ip,endpoint,`logged in admin ${result.admin_id}`,'logged in');
+                    const token = await jwt.sign({admin_id:result[0].admin_id},jwt_key);
+                    logs.add_log(ip,endpoint,`logged in admin ${result[0].admin_id}`,'logged in');
                     return res.send({
-                        status:1,
+                        ok:true,
                         auth_token:token
                     });
 
                 }else{
                     logs.add_log(ip,endpoint,`loggin by ${username}`,'logged in unsuccessfull');
                     return res.send({
-                        status:0,
+                        ok:false,
                         message:'this admin in disabled! contact support'
                     });
 
@@ -49,7 +59,7 @@ const ADMIN_LOGIN = async (req,res) => {
             }else{
                 logs.add_log(ip,endpoint,`loggin by ${username}`,'logged in unsuccessfull');
                 return res.send({
-                    status:0,
+                    ok:false,
                     message:"unauthorised"
                 });
             }
@@ -61,7 +71,7 @@ const ADMIN_LOGIN = async (req,res) => {
         console.log(error);
         logs.add_log(ip,endpoint,`creating admin ${username}`,error.message);
         return res.send({
-            status:0,
+            ok:false,
             message:error.message
         });
     }
@@ -86,7 +96,7 @@ const ADMIN_CREATE = async (req,res) => {
         logs.add_log(ip,endpoint,`creating admin ${username}`,'admin created');
 
         return res.status(200).send({
-            status:1,
+            ok:true,
             message:"admin created!"
         });
 
@@ -95,7 +105,7 @@ const ADMIN_CREATE = async (req,res) => {
         console.log(error);
         logs.add_log(ip,endpoint,`creating admin ${username}`,error.message);
         return res.send({
-            status:0,
+            ok:false,
             message:error.message
         });
         
