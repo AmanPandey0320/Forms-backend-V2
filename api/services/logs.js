@@ -4,8 +4,8 @@ const add_log = async(ip,endpoint,info,status)=>{
     return new Promise(async(resolve,reject)=>{
         try {
 
-            const sql = `INSERT INTO logs (info,ip,endpoint,status) VALUES (?,?,?,?)`;
-            pool.query(sql,[info,ip,endpoint,status],(err,result)=>{
+            const sql = `INSERT INTO logs (info,ip,endpoint,status,timestamp) VALUES (?,?,?,?,?)`;
+            pool.query(sql,[info,ip,endpoint,status,new Date()],(err,result)=>{
                 if(err){
                     console.log(err);
                     return reject({
