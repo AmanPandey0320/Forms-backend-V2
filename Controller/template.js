@@ -39,7 +39,7 @@ const READ_TEMPLATE = async (req,res) => {
     const {admin_id} = adminuser;
     const info = `fetching template by admin : ${admin_id}`;
 
-    const sql = `SELECT * FROM template`;
+    const sql = `SELECT * FROM template ORDER BY created_at DESC`;
 
     pool.query(sql,(err,result) => {
         if(err){
