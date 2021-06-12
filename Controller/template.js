@@ -160,4 +160,39 @@ const DELETE_TEMPLATE = async (req,res) => {
     })
 }
 
-module.exports ={CREATE_TEMPLATE,READ_TEMPLATE,UPDATE_TEMPLATE,DELETE_TEMPLATE};
+const READ_ONE = async(req,res) => {
+    const { adminuser,body } = req;
+    const { id }=body;
+    const ip = req.connection.remoteAddress;
+    const endpoint = req.originalUrl;
+    const info = `sending template : ${id} to admin : ${adminuser.username}`;
+    
+    const sql = `SELECT * FROM template WHERE template_id = ?`;
+    const bind = [id];
+
+    pool.query(sql,bind,(error,result)=>{
+        if(error){
+            // console.log(error);
+            logs.add_log(ip,endpoint,info,error.message);
+            return res.status(200).json({
+                status:false,
+                message:error.message
+            });
+        }
+        // console.log(result[0]);
+        let data={
+            ...result[0],
+            theme:JSON.parse(result[0].theme),
+            data:JSON.parse(result[0].data)
+        }
+        logs.add_log(ip,endpoint,info,'sent');
+        return res.status(200).json({
+            status:true,
+            message:'data fetched',
+            time:Date.now(),
+            data
+        });
+    })
+}
+
+module.exports ={CREATE_TEMPLATE,READ_TEMPLATE,UPDATE_TEMPLATE,DELETE_TEMPLATE,READ_ONE};
