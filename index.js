@@ -26,5 +26,6 @@ app.use(async function(req, res, next) {
 app.use(cors(corsOptions));
 app.use('/admin',require('./Routes/index'));
 app.use('/api',require('./api/router'));
+app.use('/gql',require('./gql-api/routes'));
 
 server.listen(port, () => console.log(`Example app listening on port ${port}!`))
