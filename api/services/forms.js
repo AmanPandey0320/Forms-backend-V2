@@ -1,239 +1,275 @@
-const pool = require('../../config/db');
-const { v4 } = require('uuid');
+const pool = require("../../config/db");
+const { v4 } = require("uuid");
 
-const CREATE_FORM = async ({user_id,data,title,desc,theme,istest,duration,ans_key}) => {
-
-    return new Promise(async (resolve,reject) => {
-        try {
-
-            const form_id = v4();
-            const updated_at = new Date();
-            const sql = `INSERT INTO form (form_id,title,theme,description,data,user_id,updated_at,istest,duration,ans_key) VALUES (?,?,?,?,?,?,?,?,?,?)`;
-            pool.query(sql,[form_id,title,theme,desc,JSON.stringify(data),user_id,updated_at,istest,duration,JSON.stringify(ans_key)],(err,result)=>{
-                if(err){
-                    console.log(err);
-                    return reject({
-                        status:false,
-                        msg:err 
-                    });
-                }
-
-                if(result === undefined || result.length === 0 || result.affectedRows < 1){
-                    return reject({
-                        status:false,
-                        msg:{
-                            code:500,
-                            message:'unable to fetch form creation data'
-                        }
-                    });
-                }
-
-                return resolve({
-                    status:true,
-                    msg:{form_id,user_id}
-                });
-            });
-            
-        } catch (error) {
-            console.log(error);
-            return reject({
-                status:false,
-                msg:error
-            });
-        }
-
-    });
-}
-
-const GET_ALL_FORMS = async ({user_id})=>{
-    return new Promise(async (resolve,reject) => {
-        try {
-
-            const sql = `SELECT form.* FROM form JOIN users ON form.user_id = users.user_id WHERE users.isverified = true AND users.user_id = ?`;
-            pool.query(sql,[user_id],(err,result)=>{
-                if(err){
-                    console.log(err);
-                    return reject({
-                        status:false,
-                        msg:err
-                    });
-                }
-
-                if(result === undefined){
-                    return reject({
-                        status:false,
-                        msg:{
-                            code:500,
-                            message:'DB error : unable to fetch data'
-                        }
-                    });
-                }
-
-                let form,forms = [];
-
-                result.forEach(element => {
-                    form = element;
-                    form.data = JSON.parse(element.data);
-                    form.ans_key = JSON.parse(element.ans_key);
-                    forms.push(form);
-                });
-
-                return resolve({
-                    status:true,
-                    msg:{length:forms.length,result:forms}
-                });
-            });
-            
-        } catch (error) {
-
-            console.log(error);
-            return reject({
-                status:false,
-                msg:error
-            });
-            
-        }
-    });
-}
-
-const GET_ONE_FORM = async ({form_id})=>{
-    return new Promise(async (resolve,reject)=>{
-        try {
-
-            const sql = `SELECT * FROM form WHERE form_id = ?`;
-            pool.query(sql,[form_id],(err,result)=>{
-                if(err){
-                    console.log(err);
-                    return reject({
-                        status:false,
-                        msg:err
-                    });
-                }
-                // console.log(result[0]);
-                if(result === undefined || result.length === 0 ){
-                    return reject({
-                        status:false,
-                        msg:{
-                            code:500,
-                            message:'unable to fetch data'
-                        }
-                    });
-                }
-
-                let form,forms = [];
-
-                result.forEach(element => {
-                    form = element;
-                    form.data = JSON.parse(element.data);
-                    form.ans_key = JSON.parse(element.ans_key);
-                    forms.push(form);
-                });
-
-                return resolve({
-                    status:true,
-                    msg:{length:forms.length,result:forms}
-                });
-            });
-            
-        } catch (error) {
-            console.log(error);
-            return reject({
-                status:false,
-                msg:error
-            });
-        }
-    })
-}
-
-const DELETE_FORM = async (form_id) => {
-    return new Promise(async (resolve,reject)=>{
-        try {
-
-            const sql = `DELETE FROM form WHERE form_id = ?`;
-            const result = await pool.query(sql,form_id);
-
-            if(result.affectedRows < 1){
-                return reject({
-                    status:false,
-                    msg:{
-                        code:500,
-                        message:'Unable to delete forms!'
-                    }
-                });
-            }
-
-            return resolve({
-                status:true,
-                msg:{
-                    code:200,
-                    message:'form deleted!'
-                }
-            });
-            
-        } catch (error) {
+const CREATE_FORM = async ({
+  user_id,
+  data,
+  title,
+  desc,
+  theme,
+  istest,
+  duration,
+  ans_key,
+}) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const form_id = v4();
+      const updated_at = new Date();
+      const sql = `INSERT INTO form (form_id,title,theme,description,data,user_id,updated_at,istest,duration,ans_key) VALUES (?,?,?,?,?,?,?,?,?,?)`;
+      pool.query(
+        sql,
+        [
+          form_id,
+          title,
+          theme,
+          desc,
+          JSON.stringify(data),
+          user_id,
+          updated_at,
+          istest,
+          duration,
+          JSON.stringify(ans_key),
+        ],
+        (err, result) => {
+          if (err) {
             console.log(err);
             return reject({
-                status:false,
-                msg:error
+              status: false,
+              msg: err,
             });
-        }
-    })
-}
+          }
 
-const UPDATE_FORM = async ({form_id,data,title,desc,theme,ans_key,istest,duration})=>{
-
-    return new Promise(async (resolve,reject)=>{
-        
-        try {
-
-            const sql = `UPDATE form SET data = ?,title = ?,description = ?,theme = ?,updated_at = ?,ans_key = ?,istest = ?,duration = ? WHERE form_id = ?`;
-            const updated_at = new Date();
-            
-            pool.query(sql,[JSON.stringify(data),title,desc,theme,updated_at,JSON.stringify(ans_key),istest,duration,form_id],(err,result)=>{
-
-                if(err){
-                    console.log(err);
-                    return reject({
-                        status:false,
-                        msg:err
-                    });
-                }
-
-                // console.log(result);
-
-                if(result.affectedRows < 1){
-                    return reject({
-                        status:false,
-                        msg:{
-                            code:400,
-                            message:'unable to update the form'
-                        }
-                    });
-                }
-    
-                return resolve({
-                    status:true,
-                    msg:{
-                        code:200,
-                        message:'form updated'
-                    }
-                });
-
-            });
-
-            
-            
-        } catch (error) {
-            console.log(error);
+          if (
+            result === undefined ||
+            result.length === 0 ||
+            result.affectedRows < 1
+          ) {
             return reject({
-                status:false,
-                msg:error
+              status: false,
+              msg: {
+                code: 500,
+                message: "unable to fetch form creation data",
+              },
             });
-            
+          }
+
+          return resolve({
+            status: true,
+            msg: { form_id, user_id },
+          });
+        }
+      );
+    } catch (error) {
+      console.log(error);
+      return reject({
+        status: false,
+        msg: error,
+      });
+    }
+  });
+};
+
+const GET_ALL_FORMS = async ({ user_id }) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const sql = `SELECT form.* FROM form JOIN users ON form.user_id = users.user_id WHERE users.isverified = true AND users.user_id = ?`;
+      pool.query(sql, [user_id], (err, result) => {
+        if (err) {
+          console.log(err);
+          return reject({
+            status: false,
+            msg: err,
+          });
         }
 
-    });
+        if (result === undefined) {
+          return reject({
+            status: false,
+            msg: {
+              code: 500,
+              message: "DB error : unable to fetch data",
+            },
+          });
+        }
 
-}
+        let form,
+          forms = [];
 
-module.exports = { CREATE_FORM,GET_ALL_FORMS,GET_ONE_FORM,DELETE_FORM,UPDATE_FORM };
+        result.forEach((element) => {
+          form = element;
+          form.data = JSON.parse(element.data);
+          form.ans_key = JSON.parse(element.ans_key);
+          forms.push(form);
+        });
+
+        return resolve({
+          status: true,
+          msg: { length: forms.length, result: forms },
+        });
+      });
+    } catch (error) {
+      console.log(error);
+      return reject({
+        status: false,
+        msg: error,
+      });
+    }
+  });
+};
+
+const GET_ONE_FORM = async ({ form_id }) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const sql = `SELECT * FROM form WHERE form_id = ?`;
+      pool.query(sql, [form_id], (err, result) => {
+        if (err) {
+          console.log(err);
+          return reject({
+            status: false,
+            msg: err,
+          });
+        }
+        // console.log(result[0]);
+        if (result === undefined || result.length === 0) {
+          return reject({
+            status: false,
+            msg: {
+              code: 500,
+              message: "unable to fetch data",
+            },
+          });
+        }
+
+        let form,
+          forms = [];
+
+        result.forEach((element) => {
+          form = element;
+          form.data = JSON.parse(element.data);
+          form.ans_key = JSON.parse(element.ans_key);
+          forms.push(form);
+        });
+
+        return resolve({
+          status: true,
+          msg: { length: forms.length, result: forms },
+        });
+      });
+    } catch (error) {
+      console.log(error);
+      return reject({
+        status: false,
+        msg: error,
+      });
+    }
+  });
+};
+
+const DELETE_FORM = async (form_id) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const sql = `DELETE FROM form WHERE form_id = ?`;
+      const result = await pool.query(sql, form_id);
+
+      if (result.affectedRows < 1) {
+        return reject({
+          status: false,
+          msg: {
+            code: 500,
+            message: "Unable to delete forms!",
+          },
+        });
+      }
+
+      return resolve({
+        status: true,
+        msg: {
+          code: 200,
+          message: "form deleted!",
+        },
+      });
+    } catch (error) {
+      console.log(err);
+      return reject({
+        status: false,
+        msg: error,
+      });
+    }
+  });
+};
+
+const UPDATE_FORM = async ({
+  form_id,
+  data,
+  title,
+  desc,
+  theme,
+  ans_key,
+  istest,
+  duration,
+}) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const sql = `UPDATE form SET data = ?,title = ?,description = ?,theme = ?,updated_at = ?,ans_key = ?,istest = ?,duration = ? WHERE form_id = ?`;
+      const updated_at = new Date();
+
+      pool.query(
+        sql,
+        [
+          JSON.stringify(data),
+          title,
+          desc,
+          theme,
+          updated_at,
+          JSON.stringify(ans_key),
+          istest,
+          duration,
+          form_id,
+        ],
+        (err, result) => {
+          if (err) {
+            console.log(err);
+            return reject({
+              status: false,
+              msg: err,
+            });
+          }
+
+          // console.log(result);
+
+          if (result.affectedRows < 1) {
+            return reject({
+              status: false,
+              msg: {
+                code: 400,
+                message: "unable to update the form",
+              },
+            });
+          }
+
+          return resolve({
+            status: true,
+            msg: {
+              code: 200,
+              message: "form updated",
+            },
+          });
+        }
+      );
+    } catch (error) {
+      console.log(error);
+      return reject({
+        status: false,
+        msg: error,
+      });
+    }
+  });
+};
+
+module.exports = {
+  CREATE_FORM,
+  GET_ALL_FORMS,
+  GET_ONE_FORM,
+  DELETE_FORM,
+  UPDATE_FORM,
+};

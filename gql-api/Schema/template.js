@@ -7,7 +7,6 @@ const {
     GraphQLObjectType,
     GraphQLSchema,
     GraphQLString,
-    GraphQLID,
     GraphQLList,
     GraphQLInt,
     GraphQLBoolean
