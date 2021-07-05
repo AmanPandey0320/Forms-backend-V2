@@ -20,6 +20,7 @@ const IS_AUTHENTICATED = async (req, res, next) => {
       authHeader === null ||
       authHeader.trim().length === 0
     ) {
+      throw new Error("no token provided");
     }
 
     const [, token] = authHeader.split(" ");
@@ -43,7 +44,7 @@ const IS_AUTHENTICATED = async (req, res, next) => {
   } catch (error) {
     status = error.message;
     res.status(401).json({
-      error,
+      ...error,
       status,
       ok: false,
     });
