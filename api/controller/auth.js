@@ -51,16 +51,41 @@ const google = async (req, res) => {
     if (result.status) {
       status = `user with user_id: "${result.msg.user_id} was created`;
       logs.add_log(ip, endpoint, info, status);
-      return res.json({ auth_token: result.msg.auth_token });
+      const resData = {
+        err: [],
+        data: [{ auth_token: result.msg.auth_token }],
+        messages: [{ type: "success", data: "Welcome!" }],
+      };
+      return res.json(resData);
     } else {
       status = `signing in failed with error${JSON.stringify(result.msg)}`;
       logs.add_log(ip, endpoint, info, status);
-      return res.status(500).json(result.msg);
+      const resData = {
+        err: [
+          {
+            code:"ERR00001",
+            message:"Sign in failed"
+          }
+        ],
+        data: [],
+        messages: [{ type: "error", data: "Some error occured" }],
+      };
+      return res.status(200).json(resData);
     }
   } catch (error) {
     status = `operation failed with an error : ${JSON.stringify(error)}`;
     logs.add_log(ip, endpoint, info, status);
-    return res.status(500).send(error);
+    const resData = {
+      err: [
+        {
+          code:"ERR00001",
+          message:error.message
+        }
+      ],
+      data: [],
+      messages: [{ type: "error", data: "Some error occured" }],
+    };
+    return res.status(200).json(resData);
   }
 };
 
@@ -73,7 +98,17 @@ const verify = async (req, res) => {
 
   const auth_token = await jwt.sign({ user_id }, jwt_key);
   logs.add_log(ip, endpoint, info, status);
-  return res.send({ auth_token });
+  const resData = {
+    err: [],
+    data: [{ auth_token }],
+    messages: [
+      {
+        type: "success",
+        data: "Welcome!",
+      },
+    ],
+  };
+  return res.send(resData);
 };
 
 module.exports = { sign_up, sign_in, google, verify };
