@@ -40,7 +40,7 @@ const CREATE_USER = async ({ google_token, name }, callback) => {
 const GOOGLE_ENTRY = async ({ google_token, name }) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const pre_sql = `SELECT user_id FROM users WHERE google_token = ?`;
+      const pre_sql = `SELECT user_id, name FROM users WHERE google_token = ?`;
       pool.query(pre_sql, [google_token], async (err, result) => {
         if (err) {
           console.log(err);
@@ -71,18 +71,19 @@ const GOOGLE_ENTRY = async ({ google_token, name }) => {
 
               return resolve({
                 status: true,
-                msg: { auth_token, user_id },
+                msg: { auth_token, user_id, name },
               });
             }
           );
-        }
-        const { user_id } = result[0];
-        const auth_token = await jwt.sign({ user_id }, jwt_key);
+        } else {
+          const { user_id, name } = result[0];
+          const auth_token = await jwt.sign({ user_id }, jwt_key);
 
-        return resolve({
-          status: true,
-          msg: { auth_token, user_id },
-        });
+          return resolve({
+            status: true,
+            msg: { auth_token, user_id, name },
+          });
+        }
       });
     } catch (err) {
       console.log(err);

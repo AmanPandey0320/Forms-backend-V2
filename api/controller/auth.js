@@ -53,7 +53,7 @@ const google = async (req, res) => {
       logs.add_log(ip, endpoint, info, status);
       const resData = {
         err: [],
-        data: [{ auth_token: result.msg.auth_token }],
+        data: [{ auth_token: result.msg.auth_token,name:result.msg.name }],
         messages: [{ type: "success", data: "Welcome!" }],
       };
       return res.json(resData);
@@ -91,7 +91,7 @@ const google = async (req, res) => {
 
 const verify = async (req, res) => {
   const ip = req.connection.remoteAddress;
-  const { user_id } = req.user;
+  const { user_id,name } = req.user;
   const info = `verifing user ${user_id}`;
   const endpoint = req.originalUrl;
   let status = "verified";
@@ -100,7 +100,7 @@ const verify = async (req, res) => {
   logs.add_log(ip, endpoint, info, status);
   const resData = {
     err: [],
-    data: [{ auth_token }],
+    data: [{ auth_token,name }],
     messages: [
       {
         type: "success",
