@@ -4,7 +4,7 @@ const router = express.Router();
 const TemplateSchema = require("./Schema/template");
 const { IS_AUTHENTICATED } = require("./middlewares/auth");
 
-// router.use(IS_AUTHENTICATED);
+router.use(IS_AUTHENTICATED);
 
 router.use(
   "/template",

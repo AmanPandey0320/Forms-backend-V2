@@ -1,5 +1,8 @@
 const logs = require("../services/logs");
 const { uploadToCloud, downloadFromCloud } = require("../services/storage");
+const { v4 } = require("uuid");
+const fs = require("fs");
+const path = require("path");
 
 const upload = async (req, res) => {
   const ip = req.connection.remoteAddress;
@@ -44,7 +47,8 @@ const download = async (req, res) => {
   const info = `file download by user : ${user_id}`;
   let status = "";
 
-  const { name } = req.body;
+  const { name } = req.params;
+  // console.log(name)
 
   try {
     const down_res = await downloadFromCloud(name);
@@ -52,7 +56,28 @@ const download = async (req, res) => {
     if (down_res.status) {
       status = `file : ${name} downloaded by user ${user_id}`;
       logs.add_log(ip, endpoint, info, status);
-      return res.send(down_res.msg);
+      console.log(down_res)
+      res.download(
+        down_res.destination,
+        `${v4()}.${down_res.extension}`,
+        (err) => {
+          if (err) {
+            console.log(err);
+            // return res.status(500).send(err.message);
+          }
+
+          fs.unlink(
+            path.join(__dirname, `../../${down_res.destination}`),
+            (err) => {
+              if (err) {
+                console.log(err);
+              }
+            }
+          );
+
+          return;
+        }
+      );
     } else {
       status = `operation by user : ${user_id} failed with a message : ${down_res.msg.message}`;
       logs.add_log(ip, endpoint, info, status);
@@ -66,8 +91,7 @@ const download = async (req, res) => {
     logs.add_log(ip, endpoint, info, status);
     res.status(500).send(error);
   }
-
-  res.send("down");
 };
 
-module.exports = { upload, download };
+
+module.exports = { upload, download};

@@ -4,11 +4,14 @@ const jwt_key = process.env.JWT_KEY;
 const logs = require("../services/logs");
 
 const IS_AUTHENTICATED = async (req, res, next) => {
-  const { auth_token } = req.body;
+  const { akp_form_session_id } = req.cookies;
+  let { auth_token } = req.body;
   const ip = req.connection.remoteAddress;
   const endpoint = req.originalUrl;
   const info = `accessing api `;
   let status = "";
+
+  auth_token = auth_token ? auth_token : akp_form_session_id;
 
   if (auth_token === null || auth_token === undefined) {
     status = `no auth token found`;

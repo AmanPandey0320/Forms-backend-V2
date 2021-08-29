@@ -3,10 +3,12 @@ const http = require("http");
 require("dotenv").config();
 const app = express();
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 const server = http.createServer(app);
 const port = process.env.PORT;
 
 app.use(express.json());
+app.use(cookieParser());
 
 const corsOptions = {
   origin: [

@@ -70,10 +70,13 @@ const downloadFromCloud = async (name) => {
     const downloadTask = bucket.file(name);
     try {
       const extension = name.split(".")[1];
-      const file = await downloadTask.download();
+      const destination = `./temp_downloads/${v4()}.${extension}`;
+      const options = { destination };
+      await downloadTask.download(options);
       return resolve({
+        destination,
+        extension,
         status: true,
-        msg: file,
       });
     } catch (error) {
       console.log(error);

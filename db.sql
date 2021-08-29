@@ -66,3 +66,55 @@ create table `template`(
 `created_by` varchar(128) not null,
 `created_at` timestamp not null
 )engine=InnoDB default charset=utf8mb4;
+
+create table `akp_forms`(
+`id`int not null auto_increment primary key,
+`title` varchar(256) not null default "Untitled",
+`description` text,
+`active` boolean default true,
+`edit` boolean default true,
+`send` boolean default false,
+`who` varchar(256) not null,
+`theme` varchar(256),
+`when` timestamp not null default current_timestamp
+)engine=InnoDB default charset=utf8mb4;
+ 
+ create table `akp_section`(
+ `id` int not null auto_increment primary key,
+ `title` varchar(256) not null default "Untitled section",
+ `description` text,
+ `order` int not null default 1,
+ `theme` varchar(256),
+ `who` varchar(256) not null,
+ `when` timestamp not null default current_timestamp
+ )engine=InnoDB default charset=utf8mb4;
+ 
+ create table `akp_question`(
+ `id` int not null auto_increment primary key,
+ `title` text not null,
+ `description` text,
+ `order` int default 1,
+ `type` int default 1 not null,
+ `who` varchar(256) not null,
+ `when` timestamp not null default current_timestamp
+ )engine=InnoDB default charset=utf8mb4;
+ 
+ create table `akp_option`(
+ `id` int not null auto_increment primary key,
+ `title` varchar(256) not null default "New option",
+ `is_right` boolean not null default false,
+ `marks` boolean not null,
+ `who` varchar(265) not null,
+ `when` timestamp not null default current_timestamp
+ )engine = InnoDB default charset=utf8mb4;
+ 
+ create table `attachments`(
+ `id` int not null auto_increment primary key,
+ `name` varchar(256) not null,
+ `active` boolean not null default true,
+ `for` int default 0,
+ `who` varchar(256) not null,
+ `when` timestamp not null default current_timestamp
+ )engine=InnoDB default charset=utf8mb4;
+ 
+ alter table `akp_forms` add column `tid` varchar(256);

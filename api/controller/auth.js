@@ -2,7 +2,13 @@ const { CREATE_USER, VERIFY_USER, GOOGLE_ENTRY } = require("../services/user");
 const logs = require("../services/logs");
 const jwt = require("jsonwebtoken");
 const jwt_key = process.env.JWT_KEY;
+const { v4 } = require("uuid");
 
+/**
+ * @description controller for sign up
+ * @param {*} req
+ * @param {*} res
+ */
 const sign_up = async (req, res) => {
   const { google_token, name } = req.body;
   const ip = req.connection.remoteAddress;
@@ -18,10 +24,16 @@ const sign_up = async (req, res) => {
 
     status = `user with user_id: "${result.msg.user_id} was created`;
     logs.add_log(ip, endpoint, info, status);
+    res.cookie("akp_form_session_id", result.msg.auth_token, { path: "/" });
     return res.json({ auth_token: result.msg.auth_token });
   });
 };
 
+/**
+ * @description controller for sign in
+ * @param {*} req
+ * @param {*} res
+ */
 const sign_in = async (req, res) => {
   const { google_token } = req.body;
   const ip = req.connection.remoteAddress;
@@ -36,10 +48,17 @@ const sign_in = async (req, res) => {
     }
     status = `user with user_id " ${result.msg.user_id} " signed in.`;
     logs.add_log(ip, endpoint, info, status);
-    return res.json({ auth_token: result.msg.auth_token });
+    res.cookie("akp_form_session_id", result.msg.auth_token, { path: "/" });
+    return res.json({ auth_token: result.msg.auth_token }).send();
   });
 };
 
+/**
+ * @description controller for sign in
+ * @param {*} req
+ * @param {*} res
+ * @returns
+ */
 const google = async (req, res) => {
   const { google_token, name } = req.body;
   const ip = req.connection.remoteAddress;
@@ -53,19 +72,20 @@ const google = async (req, res) => {
       logs.add_log(ip, endpoint, info, status);
       const resData = {
         err: [],
-        data: [{ auth_token: result.msg.auth_token,name:result.msg.name }],
+        data: [{ auth_token: result.msg.auth_token, name: result.msg.name }],
         messages: [{ type: "success", data: "Welcome!" }],
       };
-      return res.json(resData);
+      res.cookie("akp_form_session_id", result.msg.auth_token, { path: "/" });
+      return res.json(resData).send();
     } else {
       status = `signing in failed with error${JSON.stringify(result.msg)}`;
       logs.add_log(ip, endpoint, info, status);
       const resData = {
         err: [
           {
-            code:"ERR00001",
-            message:"Sign in failed"
-          }
+            code: "ERR00001",
+            message: "Sign in failed",
+          },
         ],
         data: [],
         messages: [{ type: "error", data: "Some error occured" }],
@@ -78,9 +98,9 @@ const google = async (req, res) => {
     const resData = {
       err: [
         {
-          code:"ERR00001",
-          message:error.message
-        }
+          code: "ERR00001",
+          message: error.message,
+        },
       ],
       data: [],
       messages: [{ type: "error", data: "Some error occured" }],
@@ -89,9 +109,15 @@ const google = async (req, res) => {
   }
 };
 
+/**
+ * @description controller for user verification
+ * @param {*} req
+ * @param {*} res
+ * @returns
+ */
 const verify = async (req, res) => {
   const ip = req.connection.remoteAddress;
-  const { user_id,name } = req.user;
+  const { user_id, name } = req.user;
   const info = `verifing user ${user_id}`;
   const endpoint = req.originalUrl;
   let status = "verified";
@@ -100,7 +126,7 @@ const verify = async (req, res) => {
   logs.add_log(ip, endpoint, info, status);
   const resData = {
     err: [],
-    data: [{ auth_token,name }],
+    data: [{ auth_token, name }],
     messages: [
       {
         type: "success",
@@ -108,7 +134,8 @@ const verify = async (req, res) => {
       },
     ],
   };
-  return res.send(resData);
+  res.cookie("akp_form_session_id", auth_token, { path: "/" });
+  return res.send(resData).send();
 };
 
 module.exports = { sign_up, sign_in, google, verify };
