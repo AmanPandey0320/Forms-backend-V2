@@ -1,6 +1,5 @@
 const graphql = require('graphql');
 const utils = require('util');
-const _ = require('lodash');
 let pool = require('../../config/db');
 pool.query = utils.promisify(pool.query);
 const { 

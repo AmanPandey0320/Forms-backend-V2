@@ -118,3 +118,7 @@ create table `akp_forms`(
  )engine=InnoDB default charset=utf8mb4;
  
  alter table `akp_forms` add column `tid` varchar(256);
+ 
+ alter table `template` add column `uses` int default 0;
+ 
+ alter table akp_forms modify column `title` varchar(256) default "Untitled";
