@@ -11,6 +11,7 @@ const IS_AUTHENTICATED = async (req, res, next) => {
   const info = `accessing api `;
   let status = "";
 
+  // console.log("token--->",auth_token,akp_form_session_id);
   auth_token = auth_token ? auth_token : akp_form_session_id;
 
   if (auth_token === null || auth_token === undefined) {
@@ -32,7 +33,9 @@ const IS_AUTHENTICATED = async (req, res, next) => {
   // console.log(auth_token,jwt_key);
 
   try {
-    const { user_id } = await jwt.verify(auth_token, jwt_key);
+    const decode = await jwt.verify(auth_token, jwt_key);
+    console.log("decode---->",decode);
+    const { user_id } = decode;
 
     if (user_id === null || user_id === undefined) {
       status = `invalid auth token`;

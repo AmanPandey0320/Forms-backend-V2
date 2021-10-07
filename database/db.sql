@@ -50,7 +50,7 @@ create table `admin` (
 `admin_id` varchar(255) not null primary key,
 `issuper` boolean default false,
 `username` varchar(255) not null unique,
-`email_id` varchar(255) not null,
+`email_id` varchar(255) not null unique,
 `password` text not null,
 `created` timestamp default current_timestamp(),
 `enabled` boolean default false

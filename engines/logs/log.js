@@ -1,4 +1,4 @@
-const pool = require("../config/db");
+const pool = require("../../config/db");
 
 const add_log = async (ip, endpoint, info, status) => {
   return new Promise(async (resolve, reject) => {
