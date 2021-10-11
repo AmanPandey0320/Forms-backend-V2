@@ -48,10 +48,10 @@ const create = async (req, res) => {
 };
 
 const getall = async (req, res) => {
-  const { auth_token } = req.body;
   const ip = req.connection.remoteAddress;
   const endpoint = req.originalUrl;
-  const { user_id } = await jwt.verify(auth_token, process.env.JWT_KEY);
+  const user = req.user;
+  const { user_id } = user;
   const info = `fetching forms for user with user_id ${user_id}`;
   let status = "";
 

@@ -116,6 +116,15 @@ create table `akp_forms`(
  `who` varchar(256) not null,
  `when` timestamp not null default current_timestamp
  )engine=InnoDB default charset=utf8mb4;
+
+ create table `sessions`(
+ `id` varchar(255) not null primary key,
+ `uid` varchar(255) not null,
+ `active` boolean default true,
+ `last_login` timestamp,
+ `logout_time`timestamp,
+ `created_at` timestamp not null default current_timestamp
+ )  engine=InnoDB default charset=utf8mb4;
  
  alter table `akp_forms` add column `tid` varchar(256);
  

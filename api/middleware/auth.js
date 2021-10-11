@@ -4,15 +4,15 @@ const jwt_key = process.env.JWT_KEY;
 const logs = require("../services/logs");
 
 const IS_AUTHENTICATED = async (req, res, next) => {
-  const { akp_form_session_id } = req.cookies;
+  const { akp_auth_token } = req.cookies;
   let { auth_token } = req.body;
   const ip = req.connection.remoteAddress;
   const endpoint = req.originalUrl;
   const info = `accessing api `;
   let status = "";
 
-  // console.log("token--->",auth_token,akp_form_session_id);
-  auth_token = auth_token ? auth_token : akp_form_session_id;
+  // console.log("token--->",auth_token,akp_auth_token);
+  auth_token = auth_token ? auth_token : akp_auth_token;
 
   if (auth_token === null || auth_token === undefined) {
     status = `no auth token found`;
@@ -34,7 +34,7 @@ const IS_AUTHENTICATED = async (req, res, next) => {
 
   try {
     const decode = await jwt.verify(auth_token, jwt_key);
-    console.log("decode---->",decode);
+    // console.log("decode---->",decode);
     const { user_id } = decode;
 
     if (user_id === null || user_id === undefined) {

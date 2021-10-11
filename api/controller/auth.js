@@ -2,7 +2,7 @@ const { CREATE_USER, VERIFY_USER, GOOGLE_ENTRY } = require("../services/user");
 const logs = require("../services/logs");
 const jwt = require("jsonwebtoken");
 const jwt_key = process.env.JWT_KEY;
-const { v4 } = require("uuid");
+const { createSession } = require("../../engines/sessions");
 
 /**
  * @description controller for sign up
@@ -24,7 +24,7 @@ const sign_up = async (req, res) => {
 
     status = `user with user_id: "${result.msg.user_id} was created`;
     logs.add_log(ip, endpoint, info, status);
-    res.cookie("akp_form_session_id", result.msg.auth_token, { path: "/" });
+    res.cookie("akp_auth_token", result.msg.auth_token, { path: "/" });
     return res.json({ auth_token: result.msg.auth_token });
   });
 };
@@ -40,17 +40,36 @@ const sign_in = async (req, res) => {
   const info = `signing in user with google token`;
   const endpoint = req.originalUrl;
   let status = "";
-  VERIFY_USER(google_token, async (err, result) => {
-    if (err) {
-      status = `signing in failed with error${JSON.stringify(err)}`;
+  try {
+    VERIFY_USER(google_token, async (err, result) => {
+      if (err) {
+        status = `signing in failed with error${JSON.stringify(err)}`;
+        logs.add_log(ip, endpoint, info, status);
+        return res.status(500).json(err);
+      }
+      const { auth_token, user_id } = result.msg;
+      const sid = await createSession(user_id, false);
+      status = `user with user_id " ${result.msg.user_id} " signed in.`;
       logs.add_log(ip, endpoint, info, status);
-      return res.status(500).json(err);
-    }
-    status = `user with user_id " ${result.msg.user_id} " signed in.`;
+      res.cookie("akp_auth_token", auth_token, { path: "/" });
+      res.cookie("akp_form_session_id", sid, { path: "/" });
+      return res.json({ auth_token }).send();
+    });
+  } catch (error) {
+    status = `signing in failed with error${JSON.stringify(err)}`;
     logs.add_log(ip, endpoint, info, status);
-    res.cookie("akp_form_session_id", result.msg.auth_token, { path: "/" });
-    return res.json({ auth_token: result.msg.auth_token }).send();
-  });
+    const resData = {
+      err: [
+        {
+          code: "ERR00001",
+          message: error.message,
+        },
+      ],
+      data: [],
+      messages: [{ type: "error", data: "Some error occured" }],
+    };
+    return res.status(200).json(resData);
+  }
 };
 
 /**
@@ -67,6 +86,7 @@ const google = async (req, res) => {
   let status = "";
   try {
     const result = await GOOGLE_ENTRY({ google_token, name });
+    const { auth_token, user_id } = result.msg;
     if (result.status) {
       status = `user with user_id: "${result.msg.user_id} was created`;
       logs.add_log(ip, endpoint, info, status);
@@ -75,7 +95,9 @@ const google = async (req, res) => {
         data: [{ auth_token: result.msg.auth_token, name: result.msg.name }],
         messages: [{ type: "success", data: "Welcome!" }],
       };
-      res.cookie("akp_form_session_id", result.msg.auth_token, { path: "/" });
+      const sid = await createSession(user_id, false);
+      res.cookie("akp_auth_token", auth_token, { path: "/" });
+      res.cookie("akp_form_session_id", sid, { path: "/" });
       return res.json(resData).send();
     } else {
       status = `signing in failed with error${JSON.stringify(result.msg)}`;
@@ -93,6 +115,7 @@ const google = async (req, res) => {
       return res.status(200).json(resData);
     }
   } catch (error) {
+    console.log("google---->", error);
     status = `operation failed with an error : ${JSON.stringify(error)}`;
     logs.add_log(ip, endpoint, info, status);
     const resData = {
@@ -134,7 +157,7 @@ const verify = async (req, res) => {
       },
     ],
   };
-  res.cookie("akp_form_session_id", auth_token, { path: "/" });
+  res.cookie("akp_auth_token", auth_token, { path: "/" });
   return res.send(resData).send();
 };
 
