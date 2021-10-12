@@ -48,7 +48,7 @@ const sign_in = async (req, res) => {
         return res.status(500).json(err);
       }
       const { auth_token, user_id } = result.msg;
-      const sid = await createSession(user_id, false);
+      const sid = await createSession(user_id, false,ip);
       status = `user with user_id " ${result.msg.user_id} " signed in.`;
       logs.add_log(ip, endpoint, info, status);
       res.cookie("akp_auth_token", auth_token, { path: "/" });
@@ -95,7 +95,7 @@ const google = async (req, res) => {
         data: [{ auth_token: result.msg.auth_token, name: result.msg.name }],
         messages: [{ type: "success", data: "Welcome!" }],
       };
-      const sid = await createSession(user_id, false);
+      const sid = await createSession(user_id, false,ip);
       res.cookie("akp_auth_token", auth_token, { path: "/" });
       res.cookie("akp_form_session_id", sid, { path: "/" });
       return res.json(resData).send();

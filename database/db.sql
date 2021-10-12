@@ -131,3 +131,7 @@ create table `akp_forms`(
  alter table `template` add column `uses` int default 0;
  
  alter table akp_forms modify column `title` varchar(256) default "Untitled";
+ 
+ alter table sessions add column `first_ip` varchar(256) not null;
+ 
+ alter table sessions add column `last_ip` varchar(256) not null;

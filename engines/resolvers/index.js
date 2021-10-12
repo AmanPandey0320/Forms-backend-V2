@@ -7,8 +7,8 @@ const errorCode = require('./error')
  * @returns 
  */
 const resolveError = (error) => {
-  const { code, message } = error;
-  if (code && message) {
+  const { code } = error;
+  if (code) {
     return errorCode[code];
   } else {
     return errorCode["DEFAULT"];
