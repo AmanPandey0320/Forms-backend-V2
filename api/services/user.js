@@ -37,10 +37,10 @@ const CREATE_USER = async ({ google_token, name }, callback) => {
     });
   }
 };
-const GOOGLE_ENTRY = async ({ google_token, name }) => {
+const GOOGLE_ENTRY = async ({ google_token, name,email_id }) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const pre_sql = `SELECT user_id, name FROM users WHERE google_token = ?`;
+      const pre_sql = `SELECT user_id, name,email_id FROM users WHERE google_token = ?`;
       pool.query(pre_sql, [google_token], async (err, result) => {
         if (err) {
           console.log(err);
@@ -53,11 +53,11 @@ const GOOGLE_ENTRY = async ({ google_token, name }) => {
           //create user
           const user_id = await v4(16);
           const updated_at = new Date();
-          const sql = `INSERT INTO users (user_id,name,google_token,isverified,updated_at) VALUES (?,?,?,?,?)`;
+          const sql = `INSERT INTO users (user_id,name,google_token,isverified,updated_at,email_id) VALUES (?,?,?,?,?,?)`;
 
           pool.query(
             sql,
-            [user_id, name, google_token, true, updated_at],
+            [user_id, name, google_token, true, updated_at,email_id],
             async (err, result) => {
               if (err) {
                 console.log(err);
@@ -71,17 +71,17 @@ const GOOGLE_ENTRY = async ({ google_token, name }) => {
 
               return resolve({
                 status: true,
-                msg: { auth_token, user_id, name },
+                msg: { auth_token, user_id, name,email_id },
               });
             }
           );
         } else {
-          const { user_id, name } = result[0];
+          const { user_id, name, email_id } = result[0];
           const auth_token = await jwt.sign({ user_id }, jwt_key);
 
           return resolve({
             status: true,
-            msg: { auth_token, user_id, name },
+            msg: { auth_token, user_id, name, email_id },
           });
         }
       });
@@ -96,7 +96,7 @@ const GOOGLE_ENTRY = async ({ google_token, name }) => {
 };
 const VERIFY_USER = async (google_token, callback) => {
   try {
-    const sql = `SELECT user_id FROM users WHERE google_token = ?`;
+    const sql = `SELECT user_id,email_id,name FROM users WHERE google_token = ?`;
     pool.query(sql, [google_token], async (err, result) => {
       if (err) {
         console.log(err);
@@ -114,12 +114,12 @@ const VERIFY_USER = async (google_token, callback) => {
           },
         });
       }
-      const { user_id } = result[0];
+      const { user_id,email_id,name } = result[0];
       const auth_token = await jwt.sign({ user_id }, jwt_key);
 
       return callback(null, {
         status: true,
-        msg: { auth_token, user_id },
+        msg: { auth_token, user_id,email_id,name },
       });
     });
   } catch (err) {

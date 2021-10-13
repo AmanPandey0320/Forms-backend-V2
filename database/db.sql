@@ -135,3 +135,5 @@ create table `akp_forms`(
  alter table sessions add column `first_ip` varchar(256) not null;
  
  alter table sessions add column `last_ip` varchar(256) not null;
+ 
+ alter table users add column `email_id` varchar(256);

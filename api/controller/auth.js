@@ -3,6 +3,8 @@ const logs = require("../services/logs");
 const jwt = require("jsonwebtoken");
 const jwt_key = process.env.JWT_KEY;
 const { createSession } = require("../../engines/sessions");
+const sendMail = require("../../engines/mail");
+const TML0000001 = require("../../engines/mail/templates/TML0000001");
 
 /**
  * @description controller for sign up
@@ -47,13 +49,19 @@ const sign_in = async (req, res) => {
         logs.add_log(ip, endpoint, info, status);
         return res.status(500).json(err);
       }
-      const { auth_token, user_id } = result.msg;
-      const sid = await createSession(user_id, false,ip);
+      const { auth_token, user_id, email_id, name } = result.msg;
+      //creating session
+      const sid = await createSession(user_id, false, ip);
+      //adding logs
       status = `user with user_id " ${result.msg.user_id} " signed in.`;
       logs.add_log(ip, endpoint, info, status);
+      //sending cookies
       res.cookie("akp_auth_token", auth_token, { path: "/" });
       res.cookie("akp_form_session_id", sid, { path: "/" });
-      return res.json({ auth_token }).send();
+      /**
+       * sending reponse
+       */
+      return res.json({ auth_token, email_id }).send();
     });
   } catch (error) {
     status = `signing in failed with error${JSON.stringify(err)}`;
@@ -79,25 +87,37 @@ const sign_in = async (req, res) => {
  * @returns
  */
 const google = async (req, res) => {
-  const { google_token, name } = req.body;
+  const { google_token, name,email_id } = req.body;
   const ip = req.connection.remoteAddress;
   const info = `signing in user with google token`;
   const endpoint = req.originalUrl;
   let status = "";
   try {
-    const result = await GOOGLE_ENTRY({ google_token, name });
+    const result = await GOOGLE_ENTRY({ google_token, name,email_id });
     const { auth_token, user_id } = result.msg;
     if (result.status) {
       status = `user with user_id: "${result.msg.user_id} was created`;
       logs.add_log(ip, endpoint, info, status);
       const resData = {
         err: [],
-        data: [{ auth_token: result.msg.auth_token, name: result.msg.name }],
+        data: [
+          {
+            auth_token: result.msg.auth_token,
+            name: result.msg.name,
+            email_id,
+          },
+        ],
         messages: [{ type: "success", data: "Welcome!" }],
       };
-      const sid = await createSession(user_id, false,ip);
+      const sid = await createSession(user_id, false, ip);
       res.cookie("akp_auth_token", auth_token, { path: "/" });
       res.cookie("akp_form_session_id", sid, { path: "/" });
+      /**
+       * sending mail
+       */
+      if (email_id) {
+        sendMail(email_id, TML0000001.subject, TML0000001.body([name, ip]));
+      }
       return res.json(resData).send();
     } else {
       status = `signing in failed with error${JSON.stringify(result.msg)}`;
