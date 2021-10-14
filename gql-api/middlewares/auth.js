@@ -4,16 +4,16 @@ const jwt_key = process.env.JWT_KEY;
 const logs = require("../../engines/logs/log");
 
 const IS_AUTHENTICATED = async (req, res, next) => {
-  const { akp_form_session_id } = req.cookies;
+  const { akp_auth_token } = req.cookies;
   let { auth_token } = req.body;
   const ip = req.connection.remoteAddress;
   const endpoint = req.originalUrl;
   const info = `accessing api `;
   let status = "";
 
-  auth_token = auth_token ? auth_token : akp_form_session_id;
+  auth_token = auth_token ? auth_token : akp_auth_token;
 
-  // console.log(auth_token)
+  // console.log("auth token----->",auth_token)
 
   if (auth_token === null || auth_token === undefined) {
     status = `no auth token found`;
@@ -55,7 +55,7 @@ const IS_AUTHENTICATED = async (req, res, next) => {
     const sql = `SELECT * FROM users WHERE user_id=?`;
     pool.query(sql, [user_id], (err, result) => {
       if (err) {
-        console.log(err);
+        // console.log(err);
         status = `operation failed with an error : ${JSON.stringify(err)}`;
         logs.add_log(ip, endpoint, info, status);
         const resData = {
@@ -116,6 +116,7 @@ const IS_AUTHENTICATED = async (req, res, next) => {
       next();
     });
   } catch (error) {
+    // console.log("is authenticated error",error)
     if (error.message === "invalid signature") {
       status = `operation failed with a message : ${error.message}`;
       logs.add_log(ip, endpoint, info, status);
