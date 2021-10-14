@@ -3,6 +3,12 @@ const { v4 } = require("uuid");
 const jwt = require("jsonwebtoken");
 const jwt_key = process.env.JWT_KEY;
 
+/**
+ * 
+ * @param {*} param0 
+ * @param {*} callback 
+ * @returns 
+ */
 const CREATE_USER = async ({ google_token, name }, callback) => {
   try {
     const user_id = await v4(16);
@@ -37,7 +43,7 @@ const CREATE_USER = async ({ google_token, name }, callback) => {
     });
   }
 };
-const GOOGLE_ENTRY = async ({ google_token, name,email_id }) => {
+const GOOGLE_ENTRY = async ({ google_token, name, email_id }) => {
   return new Promise(async (resolve, reject) => {
     try {
       const pre_sql = `SELECT user_id, name,email_id FROM users WHERE google_token = ?`;
@@ -57,7 +63,7 @@ const GOOGLE_ENTRY = async ({ google_token, name,email_id }) => {
 
           pool.query(
             sql,
-            [user_id, name, google_token, true, updated_at,email_id],
+            [user_id, name, google_token, true, updated_at, email_id],
             async (err, result) => {
               if (err) {
                 console.log(err);
@@ -71,7 +77,7 @@ const GOOGLE_ENTRY = async ({ google_token, name,email_id }) => {
 
               return resolve({
                 status: true,
-                msg: { auth_token, user_id, name,email_id },
+                msg: { auth_token, user_id, name, email_id },
               });
             }
           );
@@ -114,12 +120,12 @@ const VERIFY_USER = async (google_token, callback) => {
           },
         });
       }
-      const { user_id,email_id,name } = result[0];
+      const { user_id, email_id, name } = result[0];
       const auth_token = await jwt.sign({ user_id }, jwt_key);
 
       return callback(null, {
         status: true,
-        msg: { auth_token, user_id,email_id,name },
+        msg: { auth_token, user_id, email_id, name },
       });
     });
   } catch (err) {
