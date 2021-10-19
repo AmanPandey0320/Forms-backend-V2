@@ -2,7 +2,7 @@ const { CREATE_USER, VERIFY_USER, GOOGLE_ENTRY } = require("../services/user");
 const logs = require("../services/logs");
 const jwt = require("jsonwebtoken");
 const jwt_key = process.env.JWT_KEY;
-const { createSession } = require("../../engines/sessions");
+const { createSession, destroySession } = require("../../engines/sessions");
 const sendMail = require("../../engines/mail");
 const TML0000001 = require("../../engines/mail/templates/TML0000001");
 
@@ -87,13 +87,13 @@ const sign_in = async (req, res) => {
  * @returns
  */
 const google = async (req, res) => {
-  const { google_token, name,email_id } = req.body;
+  const { google_token, name, email_id } = req.body;
   const ip = req.connection.remoteAddress;
   const info = `signing in user with google token`;
   const endpoint = req.originalUrl;
   let status = "";
   try {
-    const result = await GOOGLE_ENTRY({ google_token, name,email_id });
+    const result = await GOOGLE_ENTRY({ google_token, name, email_id });
     const { auth_token, user_id } = result.msg;
     if (result.status) {
       status = `user with user_id: "${result.msg.user_id} was created`;
@@ -181,4 +181,36 @@ const verify = async (req, res) => {
   return res.send(resData).send();
 };
 
-module.exports = { sign_up, sign_in, google, verify };
+/**
+ * @description signing out the user
+ * @param {*} req
+ * @param {*} res
+ */
+const signOut = async (req, res) => {
+  const ip = req.connection.remoteAddress;
+  const { user_id, name } = req.user;
+  const info = `signing out user ${user_id}`;
+  const endpoint = req.originalUrl;
+  const { akp_form_session_id } = req.cookies;
+  try {
+    const result = await destroySession(akp_form_session_id);
+    const resp = {
+      err: [],
+      message: [],
+      data: [result],
+    };
+    logs.add_log(ip, endpoint, info, "logged out!!");
+    res.status(200).json(resp).send();
+  } catch (error) {
+    const { status, ...data } = resolvers.resolveError(error);
+    const resp = {
+      err: [data],
+      messages: ["some error...."],
+      data: [],
+    };
+    logs.add_log(ip, endpoint, info, "error logging out");
+    res.status(status).json(resp).send();
+  }
+};
+
+module.exports = { sign_up, sign_in, google, verify, signOut };
