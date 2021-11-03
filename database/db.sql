@@ -137,3 +137,10 @@ create table `akp_forms`(
  alter table sessions add column `last_ip` varchar(256) not null;
  
  alter table users add column `email_id` varchar(256);
+ 
+ alter table form drop column `form_id`;
+ 
+ alter table form add column `form_id` int not null primary key auto_increment;
+ alter table form modify column `created_at` timestamp default current_timestamp;
+ alter table form modify column `updated_at` timestamp default current_timestamp;
+ alter table form modify column `theme` text;

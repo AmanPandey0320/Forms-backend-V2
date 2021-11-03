@@ -266,6 +266,10 @@ const UPDATE_FORM = async ({
   });
 };
 
+const CREATE_FROM_TEMPLATE = (tid,user) => {
+  
+}
+
 module.exports = {
   CREATE_FORM,
   GET_ALL_FORMS,

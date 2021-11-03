@@ -8,6 +8,12 @@ const {
 const logs = require("../services/logs");
 const jwt = require("jsonwebtoken");
 
+/**
+ * @description
+ * @param {*} req
+ * @param {*} res
+ * @returns
+ */
 const create = async (req, res) => {
   const { auth_token, data, title, desc, theme, istest, duration, ans_key } =
     req.body;
@@ -47,6 +53,12 @@ const create = async (req, res) => {
   }
 };
 
+/**
+ *
+ * @param {*} req
+ * @param {*} res
+ * @returns
+ */
 const getall = async (req, res) => {
   const ip = req.connection.remoteAddress;
   const endpoint = req.originalUrl;
@@ -73,6 +85,12 @@ const getall = async (req, res) => {
   }
 };
 
+/**
+ *
+ * @param {*} req
+ * @param {*} res
+ * @returns
+ */
 const getone = async (req, res) => {
   const { auth_token, form_id } = req.body;
   const ip = req.connection.remoteAddress;
@@ -103,6 +121,12 @@ const getone = async (req, res) => {
   }
 };
 
+/**
+ *
+ * @param {*} req
+ * @param {*} res
+ * @returns
+ */
 const delone = async (req, res) => {
   const { auth_token, form_id } = req.body;
   const ip = req.connection.remoteAddress;
@@ -131,6 +155,12 @@ const delone = async (req, res) => {
   }
 };
 
+/**
+ *
+ * @param {*} req
+ * @param {*} res
+ * @returns
+ */
 const updateone = async (req, res) => {
   const { auth_token, form_id } = req.body;
   const ip = req.connection.remoteAddress;
@@ -178,4 +208,17 @@ const updateone = async (req, res) => {
   }
 };
 
-module.exports = { create, getall, getone, delone, updateone };
+/**
+ * @description controller to create form from  template
+ * @param {*} req 
+ * @param {*} res 
+ */
+const CREATE_FROM_TEMPLATE = async (req, res) => {
+  const { currSession, user, body } = req;
+  const ip = req.connection.remoteAddress;
+  const endpoint = req.originalUrl;
+  console.log(ip,endpoint,body)
+  res.send({currSession, user});
+};
+
+module.exports = { create, getall, getone, delone, updateone,CREATE_FROM_TEMPLATE };
