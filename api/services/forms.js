@@ -280,13 +280,25 @@ const CREATE_FROM_TEMPLATE_S = (tid, uid) => {
       if (error) {
         return reject(error);
       }
-      const [res] = result;
-      if (Boolean(res) === false) {
+      const [procedureRes, insertRes] = result;
+      if (procedureRes.length === 0 || Boolean(insertRes) === false) {
         return reject({
           code: "FRM_NO_DATA_AVAILABLE",
         });
       }
-      return resolve(res);
+      const [res] = procedureRes;
+      const data = JSON.parse(res["@data"]);
+      const description = res["@description"];
+      const theme = JSON.parse(res["@theme"]);
+      const id = res["@id"];
+      const title = res["@title"];
+      return resolve({
+        id,
+        title,
+        description,
+        theme,
+        data,
+      });
     });
   });
 };

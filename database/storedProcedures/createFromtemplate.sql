@@ -14,14 +14,20 @@ INTO @data, @description, @title, @theme,@used_by
 FROM template 
 WHERE template.template_id = tid;
 
+SET @data := JSON_PRETTY(@data);
 -- increasing the count
 SET @used_by := @used_by+1;
 
 -- updating the database
-INSERT INTO form (title,theme,description,data,user_id) VALUES (@title,@theme,@description,@data,uid);
+INSERT INTO akp_forms (title,theme,description,who,tid) VALUES (@title,@theme,@description,uid,tid);
 UPDATE template SET template.used_by = @used_by WHERE template.template_id = tid;
+
 -- fetching the results of the procedure
-SELECT * FROM form WHERE user_id = uid ORDER BY form_id DESC LIMIT 0,1;
+SELECT id INTO @id FROM akp_forms WHERE who = uid ORDER BY id DESC LIMIT 0,1;
+
+SET @theme := JSON_PRETTY(@theme);
+-- returning data
+SELECT @data,@id,@theme,@title,@description;
 END$$
 
 DELIMITER ;
