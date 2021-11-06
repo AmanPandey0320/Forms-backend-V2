@@ -29,6 +29,11 @@ const error = {
     message: "Server error! Please try again later.",
     status: 500,
   },
+  FRM_NO_DATA_AVAILABLE:{
+    code:"ERR0000006",
+    message:"Unable to fetch data!",
+    status:500
+  }
 };
 
 module.exports = error;

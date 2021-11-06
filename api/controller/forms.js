@@ -4,9 +4,11 @@ const {
   GET_ONE_FORM,
   DELETE_FORM,
   UPDATE_FORM,
+  CREATE_FROM_TEMPLATE_S,
 } = require("../services/forms");
 const logs = require("../services/logs");
 const jwt = require("jsonwebtoken");
+const resolver = require("../../engines/resolvers");
 
 /**
  * @description
@@ -210,15 +212,51 @@ const updateone = async (req, res) => {
 
 /**
  * @description controller to create form from  template
- * @param {*} req 
- * @param {*} res 
+ * @param {*} req
+ * @param {*} res
  */
 const CREATE_FROM_TEMPLATE = async (req, res) => {
-  const { currSession, user, body } = req;
+  const { user, body } = req;
+  const { user_id } = user;
+  const { tid } = body;
   const ip = req.connection.remoteAddress;
   const endpoint = req.originalUrl;
-  console.log(ip,endpoint,body)
-  res.send({currSession, user});
+  const info = `creating a form from template id={${tid}} for user if{${user_id}}`;
+  let logStatus = "No status updated";
+  let resStatus = 200,
+    resData = {
+      err: [],
+      messages: [],
+      data: [],
+    };
+  try {
+    const data = await CREATE_FROM_TEMPLATE_S(tid, user_id);
+    resData.data.push(data);
+    resData.messages.push("Form created successfully!");
+    logStatus = "form made";
+  } catch (error) {
+    console.log("create from template err ------>", error);
+    const { status, ...data } = resolver.resolveError(error);
+    resStatus = status;
+    resData.err.push(data);
+    logStatus = `some error code = ${error.code} : ${
+      error.message
+    } ---> {${JSON.stringify(error)}}`;
+  }
+  // sending the response
+  res.status(resStatus).send(resData);
+
+  //logging
+  logs.add_log(ip, endpoint, info, logStatus);
+
+  return;
 };
 
-module.exports = { create, getall, getone, delone, updateone,CREATE_FROM_TEMPLATE };
+module.exports = {
+  create,
+  getall,
+  getone,
+  delone,
+  updateone,
+  CREATE_FROM_TEMPLATE,
+};

@@ -144,3 +144,4 @@ create table `akp_forms`(
  alter table form modify column `created_at` timestamp default current_timestamp;
  alter table form modify column `updated_at` timestamp default current_timestamp;
  alter table form modify column `theme` text;
+ alter table template add column `used_by` int default 0;

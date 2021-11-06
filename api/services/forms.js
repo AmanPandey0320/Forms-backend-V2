@@ -266,9 +266,30 @@ const UPDATE_FORM = async ({
   });
 };
 
-const CREATE_FROM_TEMPLATE = (tid,user) => {
-  
-}
+/**
+ * @description created a form with template_id for a user
+ * @param {*} tid <- template id
+ * @param {*} uid <- user id
+ * @returns
+ */
+const CREATE_FROM_TEMPLATE_S = (tid, uid) => {
+  return new Promise((resolve, reject) => {
+    const sql = `CALL createFromTemplate(?,?)`;
+    const bind = [tid, uid];
+    pool.query(sql, bind, (error, result) => {
+      if (error) {
+        return reject(error);
+      }
+      const [res] = result;
+      if (Boolean(res) === false) {
+        return reject({
+          code: "FRM_NO_DATA_AVAILABLE",
+        });
+      }
+      return resolve(res);
+    });
+  });
+};
 
 module.exports = {
   CREATE_FORM,
@@ -276,4 +297,5 @@ module.exports = {
   GET_ONE_FORM,
   DELETE_FORM,
   UPDATE_FORM,
+  CREATE_FROM_TEMPLATE_S,
 };
