@@ -3,7 +3,7 @@ const logs = require("../services/logs");
 const jwt = require("jsonwebtoken");
 const jwt_key = process.env.JWT_KEY;
 const { createSession, destroySession } = require("../../engines/sessions");
-const sendMail = require("../../engines/mail");
+// const sendMail = require("../../engines/mail");
 const TML0000001 = require("../../engines/mail/templates/TML0000001");
 
 /**
@@ -116,7 +116,7 @@ const google = async (req, res) => {
        * sending mail
        */
       if (email_id) {
-        sendMail(email_id, TML0000001.subject, TML0000001.body([name, ip]));
+        // sendMail(email_id, TML0000001.subject, TML0000001.body([name, ip]));
       }
       return res.json(resData).send();
     } else {
