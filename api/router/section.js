@@ -9,11 +9,8 @@ const service = new Service(pool);
 const controller = new Controller(service);
 const router = Router();
 
-router.post(
-  "/save-action",
-  IS_AUTHENTICATED,
-  IS_VALID_SESSION,
-  controller.saveAction
-);
+router.use(IS_AUTHENTICATED, IS_VALID_SESSION);
+router.post("/save-action", controller.saveAction);
+router.post("/delete-action", controller.deleteAction);
 
 module.exports = router;

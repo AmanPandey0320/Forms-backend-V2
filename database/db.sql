@@ -152,3 +152,7 @@ create table `akp_forms`(
  alter table akp_section add column `fid` int not null;
  alter table akp_section add constraint fk_fid foreign key (fid) references akp_forms(id);
  alter table akp_section add column `last_edited` timestamp default current_timestamp;
+ 
+   -- new
+alter table akp_section add column `active` boolean default true;
+ 

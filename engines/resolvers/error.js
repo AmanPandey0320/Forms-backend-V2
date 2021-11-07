@@ -39,6 +39,11 @@ const error = {
     message: "Some data is missing",
     status: 400,
   },
+  FRM_NO_KEY: {
+    code: "ERR0000008",
+    message: "Id is missing for some fields!",
+    status: 400,
+  },
 };
 
 module.exports = error;
