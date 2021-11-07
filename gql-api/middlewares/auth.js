@@ -1,7 +1,7 @@
 const pool = require("../../config/db");
 const jwt = require("jsonwebtoken");
 const jwt_key = process.env.JWT_KEY;
-const logs = require("../../engines/logs/log");
+const logs = require("../../engines/logs");
 
 const IS_AUTHENTICATED = async (req, res, next) => {
   const { akp_auth_token } = req.cookies;

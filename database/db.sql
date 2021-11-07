@@ -147,3 +147,8 @@ create table `akp_forms`(
  alter table form modify column `updated_at` timestamp default current_timestamp;
  alter table form modify column `theme` text;
  alter table template add column `used_by` int default 0;
+ 
+ -- adding form id -> fid as foreign key
+ alter table akp_section add column `fid` int not null;
+ alter table akp_section add constraint fk_fid foreign key (fid) references akp_forms(id);
+ alter table akp_section add column `last_edited` timestamp default current_timestamp;
