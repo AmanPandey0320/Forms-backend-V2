@@ -155,4 +155,5 @@ create table `akp_forms`(
  
    -- new
 alter table akp_section add column `active` boolean default true;
+alter table akp_forms add column `last_edited` timestamp default current_timestamp;
  

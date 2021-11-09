@@ -1,7 +1,5 @@
 const pool = require("../../config/db");
 class SectionService {
-
-
   /**
    * SQL queries
    */
@@ -111,6 +109,7 @@ class SectionService {
       if (Boolean(fid) === false) {
         return reject({
           code: "FRM_BAD_DATA_FORMAT",
+          message: "invalid form",
         });
       }
 
@@ -119,7 +118,7 @@ class SectionService {
       try {
         pool.query(sql, bind, (error, result) => {
           if (error) {
-            throw error;
+            return reject(error);
           }
           console.log("section list action res----->", result);
           if (result.length === 0) {
@@ -134,7 +133,6 @@ class SectionService {
               theme: JSON.parse(sec.theme),
             };
           });
-          console.log(res)
           return resolve(res);
         });
       } catch (error) {

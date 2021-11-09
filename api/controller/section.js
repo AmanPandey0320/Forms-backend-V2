@@ -105,7 +105,7 @@ class SectionController {
       resData.data["section"] = result;
       logStatus = "section fetched";
     } catch (error) {
-      console.log("list action controller err----->", error);
+      console.log(" section list action controller err----->", error);
       const { status, ...data } = resolver.resolveError(error);
       resStatus = status;
       logStatus = error.message;

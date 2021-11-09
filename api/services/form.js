@@ -5,8 +5,9 @@ class FormService {
    * SQL queries
    */
   CREATE_FORM_SQL = `INSERT INTO akp_forms (title,theme,description,who) VALUES (?,?,?,?)`;
-  UPDATE_FORM_SQL = `UPDATE akp_forms SET title = COALESCE(?,akp_forms.title), description = COALESCE(?,akp_forms.description),theme = COALESCE(?,akp_forms.theme), active = COALESCE(?,akp_forms.active), edit = COALESCE(?,akp_forms.edit), send = COALESCE(?,akp_forms.send), akp_forms.when = ? WHERE akp_forms.id = ?`;
-  GET_ALL_FORMS_SQL = `SELECT af.* FROM akp_forms as af JOIN users ON af.who = users.user_id WHERE users.isverified = true AND users.user_id = ? AND af.active = true`;
+  UPDATE_FORM_SQL = `UPDATE akp_forms SET title = COALESCE(?,akp_forms.title), description = COALESCE(?,akp_forms.description),theme = COALESCE(?,akp_forms.theme), active = COALESCE(?,akp_forms.active), edit = COALESCE(?,akp_forms.edit), send = COALESCE(?,akp_forms.send), akp_forms.last_edited = ? WHERE akp_forms.id = ?`;
+  GET_ALL_FORMS_SQL = `SELECT af.id,af.title,af.theme,af.last_edited FROM akp_forms as af JOIN users ON af.who = users.user_id WHERE users.isverified = true AND users.user_id = ?`;
+  GET_ONE_FORM_SQL = `SELECT af.id,af.title,af.description,af.last_edited,af.active,af.send,af.edit,af.when,af.theme,users.name FROM akp_forms as af JOIN users ON users.user_id = af.who WHERE af.id = ?`;
 
   /**
    * @description saves/updates the form
@@ -32,7 +33,7 @@ class FormService {
       try {
         pool.query(sql, bind, (error, result) => {
           if (error) {
-            console.log("form service create form error db--->", error);
+            console.log("form service save action error db--->", error);
             return reject(error);
           }
           let { insertId } = result;
@@ -42,11 +43,90 @@ class FormService {
           return resolve(insertId);
         });
       } catch (error) {
-        console.log("form service create form error----->", error);
+        console.log("form service save action error----->", error);
         return reject(error);
       }
     });
-  };// end of save action
+  } // end of save action
+
+  /**
+   * @description return list of forms by a user
+   * @param {*} uid
+   * @returns
+   */
+  listAction(uid) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const sql = this.GET_ALL_FORMS_SQL;
+        const bind = [uid];
+        pool.query(sql, bind, (error, result) => {
+          if (error) {
+            console.log("form service list action error----->", error);
+            return reject(error);
+          }
+          console.log("form list action res----->", result);
+          if (result.length === 0) {
+            return reject({
+              code: "FRM_NO_DATA_AVAILABLE",
+              message: "no data was found, array was empty!",
+            });
+          }
+          const res = result.map((sec) => {
+            return {
+              ...sec,
+              theme: JSON.parse(sec.theme),
+            };
+          });
+          return resolve(res);
+        });
+      } catch (error) {
+        console.log("form service list action error----->", error);
+        return reject(error);
+      }
+    });
+  } // end of list action
+
+  /**
+   *
+   * @param {*} fid
+   * @returns
+   */
+  populateAction(fid) {
+    return new Promise(async (resolve, reject) => {
+      if (Boolean(fid) === false) {
+        return reject({
+          code: "FRM_BAD_DATA_FORMAT",
+          message: "invalid form",
+        });
+      }
+      try {
+        const sql = this.GET_ONE_FORM_SQL;
+        const bind = [fid];
+        pool.query(sql, bind, (error, result) => {
+          if (error) {
+            console.log("form service populate action error----->", error);
+            return reject(error);
+          }
+          console.log("form populate action res----->", result);
+          if (result.length === 0) {
+            return reject({
+              code: "FRM_NO_DATA_AVAILABLE",
+              message: "no data was found, array was empty!",
+            });
+          }
+          const [form] = result;
+          const res = {
+            ...form,
+            theme: JSON.parse(form.theme),
+          };
+          return resolve(res);
+        });
+      } catch (error) {
+        console.log("form service population action error----->", error);
+        return reject(error);
+      }
+    });
+  }
 } // end of class
 
 module.exports = FormService;

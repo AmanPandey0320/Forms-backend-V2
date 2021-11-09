@@ -11,5 +11,7 @@ const controller = new Controller(service);
 
 router.use(IS_AUTHENTICATED,IS_VALID_SESSION);
 router.post("/save-action",controller.saveAction);
+router.get("/list-action",controller.listAction);
+router.get("/populate-action",controller.populateAction);
 
 module.exports = router;

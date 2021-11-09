@@ -49,6 +49,11 @@ const error = {
     message: "Server error! Please try again later",
     status: 500,
   },
+  ER_NO_SUCH_TABLE: {
+    code: "ERR0000010",
+    message: "Server error! Please try again later",
+    status: 500,
+  },
 };
 
 module.exports = error;
