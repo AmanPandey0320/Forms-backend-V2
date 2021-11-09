@@ -64,7 +64,7 @@ class FormService {
             console.log("form service list action error----->", error);
             return reject(error);
           }
-          console.log("form list action res----->", result);
+          // console.log("form list action res----->", result);
           if (result.length === 0) {
             return reject({
               code: "FRM_NO_DATA_AVAILABLE",
@@ -107,7 +107,7 @@ class FormService {
             console.log("form service populate action error----->", error);
             return reject(error);
           }
-          console.log("form populate action res----->", result);
+          // console.log("form populate action res----->", result);
           if (result.length === 0) {
             return reject({
               code: "FRM_NO_DATA_AVAILABLE",

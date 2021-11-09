@@ -86,7 +86,7 @@ class SectionService {
             console.log("delete action section err1 ---->", error);
             return reject(error);
           }
-          console.log("delete action section res---->", result);
+          // console.log("delete action section res---->", result);
           return resolve({ id, active: 0 });
         });
       } catch (error) {
@@ -120,7 +120,7 @@ class SectionService {
           if (error) {
             return reject(error);
           }
-          console.log("section list action res----->", result);
+          // console.log("section list action res----->", result);
           if (result.length === 0) {
             return reject({
               code: "FRM_NO_DATA_AVAILABLE",
