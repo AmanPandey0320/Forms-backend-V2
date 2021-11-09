@@ -14,7 +14,7 @@ const router = Router();
 
 router.post("/create", IS_AUTHENTICATED, IS_VALID_SESSION, create);
 router.post("/getone", IS_AUTHENTICATED, IS_VALID_SESSION, getone);
-router.post("/getall", IS_AUTHENTICATED, IS_VALID_SESSION, getall);
+router.get("/getall", IS_AUTHENTICATED, IS_VALID_SESSION, getall);
 router.post(
   "/delete",
   IS_AUTHENTICATED,

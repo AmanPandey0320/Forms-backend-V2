@@ -72,7 +72,7 @@ const CREATE_FORM = async ({
 const GET_ALL_FORMS = async ({ user_id }) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const sql = `SELECT form.* FROM form JOIN users ON form.user_id = users.user_id WHERE users.isverified = true AND users.user_id = ?`;
+      const sql = `SELECT af.* FROM akp_forms as af JOIN users ON af.who = users.user_id WHERE users.isverified = true AND users.user_id = ? AND af.active = true`;
       pool.query(sql, [user_id], (err, result) => {
         if (err) {
           console.log(err);
@@ -92,15 +92,12 @@ const GET_ALL_FORMS = async ({ user_id }) => {
           });
         }
 
-        let form,
-          forms = [];
-
-        result.forEach((element) => {
-          form = element;
-          form.data = JSON.parse(element.data);
-          form.ans_key = JSON.parse(element.ans_key);
-          forms.push(form);
-        });
+        const forms = result.map(e => {
+          return{
+            ...e,
+            theme:JSON.parse(e.theme)
+          }
+        })
 
         return resolve({
           status: true,

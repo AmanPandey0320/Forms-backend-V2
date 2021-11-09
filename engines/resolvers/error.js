@@ -44,6 +44,11 @@ const error = {
     message: "Id is missing for some fields!",
     status: 400,
   },
+  ER_PARSE_ERROR: {
+    code: "ERR0000009",
+    message: "Server error! Please try again later",
+    status: 500,
+  },
 };
 
 module.exports = error;

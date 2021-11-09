@@ -1,11 +1,13 @@
 const pool = require("../../config/db");
 class SectionService {
-  constructor(pool) {
-    this.queryDB = pool.query;
-  }
 
+
+  /**
+   * SQL queries
+   */
   CREATE_SECTION_SQL = `INSERT INTO akp_section (fid,title,description,theme,akp_section.order,who) VALUES (?,?,?,?,?,?)`;
   UPDATE_SECTION_SQL = `UPDATE akp_section SET title = COALESCE(?,akp_section.title), description = COALESCE(?,akp_section.description), akp_section.order=COALESCE(?,akp_section.order), theme=COALESCE(?,akp_section.theme), last_edited = ? WHERE id = ?`;
+  FETCH_ALL_SECTION_SQL = `SELECT asec.id,asec.title,asec.description,asec.theme FROM akp_section as asec WHERE asec.fid = ? AND asec.active = true ORDER BY asec.order ASC;`;
   DELETE_SECTION_SQL = `UPDATE akp_section SET akp_section.active = false WHERE id = ?`;
   ACTIVE_SECTION_SQL = `UPDATE akp_section SET akp_section.active = true WHERE id = ?`;
 
@@ -95,6 +97,52 @@ class SectionService {
       }
     });
   } // end of delete action
+
+  /**
+   * @description fetch all section of a form
+   * @param {*} fid
+   * @returns
+   */
+  listAction(fid) {
+    return new Promise((resolve, reject) => {
+      /**
+       * check if form id is present
+       */
+      if (Boolean(fid) === false) {
+        return reject({
+          code: "FRM_BAD_DATA_FORMAT",
+        });
+      }
+
+      const sql = this.FETCH_ALL_SECTION_SQL;
+      const bind = [fid];
+      try {
+        pool.query(sql, bind, (error, result) => {
+          if (error) {
+            throw error;
+          }
+          console.log("section list action res----->", result);
+          if (result.length === 0) {
+            return reject({
+              code: "FRM_NO_DATA_AVAILABLE",
+              message: "no data was found, array was empty!",
+            });
+          }
+          const res = result.map((sec) => {
+            return {
+              ...sec,
+              theme: JSON.parse(sec.theme),
+            };
+          });
+          console.log(res)
+          return resolve(res);
+        });
+      } catch (error) {
+        console.log("list action section err2 ---->", error);
+        return reject(error);
+      }
+    });
+  } // end of list
 }
 
 module.exports = SectionService;
