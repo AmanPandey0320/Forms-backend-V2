@@ -1,8 +1,8 @@
 const { Router } = require("express");
 const { IS_VALID_SESSION } = require("../../engines/sessions/helpers");
 const { IS_AUTHENTICATED } = require("../middleware/auth");
-const Service = require("../services/question");
-const Controller = require("../controller/question");
+const Service = require("../services/option");
+const Controller = require("../controller/option");
 
 const service = new Service();
 const controller = new Controller(service);

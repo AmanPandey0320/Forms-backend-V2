@@ -167,4 +167,14 @@ alter table akp_question add column `marks` int default 0;
 alter table akp_question add column `fid` int not null;
 alter table akp_question add constraint fk_qfid foreign key (fid) references akp_forms(id);
 alter table akp_question modify column `title` text;
+
+alter table akp_option add column `last_edited` timestamp default current_timestamp;
+alter table akp_option add column `qid` int not null;
+alter table akp_option add constraint fk_oqid foreign key(qid) references akp_question(id);
+alter table akp_option add column `sid` int not null;
+alter table akp_option add constraint fk_osid foreign key(sid) references akp_section(id);
+alter table akp_option add column `fid` int not null;
+alter table akp_option add constraint fk_ofid foreign key(fid) references akp_forms(id);
+alter table akp_option modify column `marks` int default 0;
+alter table akp_option add column `active` boolean default true;
  
