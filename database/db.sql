@@ -91,7 +91,7 @@ create table `akp_forms`(
  
  create table `akp_question`(
  `id` int not null auto_increment primary key,
- `title` text not null,
+ `title` text,
  `description` text,
  `order` int default 1,
  `type` int default 1 not null,
@@ -164,4 +164,7 @@ alter table akp_question add constraint fk_sid foreign key (sid) references akp_
 alter table akp_question add column `required` boolean default false;
 alter table akp_question add column `marks` int default 0;
 
+alter table akp_question add column `fid` int not null;
+alter table akp_question add constraint fk_qfid foreign key (fid) references akp_forms(id);
+alter table akp_question modify column `title` text;
  
