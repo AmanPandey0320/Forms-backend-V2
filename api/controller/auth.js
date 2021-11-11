@@ -5,7 +5,6 @@ const jwt_key = process.env.JWT_KEY;
 const { createSession, destroySession } = require("../../engines/sessions");
 // const sendMail = require("../../engines/mail");
 const TML0000001 = require("../../engines/mail/templates/TML0000001");
-
 /**
  * @description controller for sign up
  * @param {*} req
