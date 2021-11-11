@@ -13,7 +13,7 @@ app.use(cookieParser());
 const corsOptions = {
   origin: [
     "http://localhost:3000",
-    "https://forms-api-306713.web.app",
+    "https://akp-forms-app.web.app/",
     "https://forms-admin-c7e0b.web.app",
   ],
   optionsSuccessStatus: 200, // For legacy browser support
