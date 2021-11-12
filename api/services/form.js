@@ -11,6 +11,7 @@ class FormService {
   GET_ALL_SEC_SQL = `SELECT asec.id,asec.title,asec.description,asec.order,asec.theme,asec.last_edited,asec.when,asec.fid FROM akp_section as asec WHERE asec.fid = ? AND asec.active = true`;
   GET_ALL_QUE_SQL = `SELECT aq.id,aq.title,aq.description,aq.order,aq.type,aq.when,aq.active,aq.last_edited,aq.required,aq.marks,aq.fid,aq.sid FROM akp_question as aq WHERE aq.fid = ? AND aq.active = true`;
   GET_ALL_OPT_SQL = `SELECT ao.id,ao.title,ao.is_right,ao.marks,ao.when,ao.last_edited,ao.fid,ao.sid,ao.qid FROM akp_option AS ao WHERE ao.fid = ? AND ao.active = true`;
+  CREATE_FROM_TEMPLATE_SQL = `CALL createFromTemplate(?,?)`;
   /**
    * @description saves/updates the form
    * @param {*} formData
@@ -123,7 +124,51 @@ class FormService {
         return reject(error);
       }
     });
-  }
+  } // end of populateAction
+
+  /**
+   * @description created form from template
+   * @param {*} tid 
+   * @param {*} uid 
+   * @returns 
+   */
+  createFromTemplate(tid, uid) {
+    return new Promise(async (resolve, reject) => {
+      if ((Boolean(tid) && Boolean(uid)) === false) {
+        return reject({
+          code: "FRM_BAD_DATA_FORMAT",
+          message: "invalid form",
+        });
+      }
+      try {
+        const bind = [tid, uid];
+        const result = await pool.query(this.CREATE_FROM_TEMPLATE_SQL, bind);
+        const [procedureRes, insertRes] = result;
+        if (procedureRes.length === 0 || Boolean(insertRes) === false) {
+          return reject({
+            code: "FRM_NO_DATA_AVAILABLE",
+            message:"no data availanle for precedure"
+          });
+        }
+        const [res] = procedureRes;
+        const data = JSON.parse(res["@data"]);
+        const description = res["@description"];
+        const theme = JSON.parse(res["@theme"]);
+        const id = res["@id"];
+        const title = res["@title"];
+        return resolve({
+          id,
+          title,
+          description,
+          theme,
+          data,
+        });
+      } catch (error) {
+        console.log("form service create from template error----->", error);
+        return reject(error);
+      }
+    });
+  } // end of create from template
 } // end of class
 
 module.exports = FormService;
