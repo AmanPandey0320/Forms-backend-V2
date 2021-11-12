@@ -156,7 +156,6 @@ create table `akp_forms`(
 alter table akp_section add column `active` boolean default true;
 alter table akp_forms add column `last_edited` timestamp default current_timestamp;
 
--- new
 alter table akp_question add column `active` boolean default true;
 alter table akp_question add column `last_edited` timestamp default current_timestamp;
 alter table akp_question add column `sid` int not null;
@@ -177,4 +176,18 @@ alter table akp_option add column `fid` int not null;
 alter table akp_option add constraint fk_ofid foreign key(fid) references akp_forms(id);
 alter table akp_option modify column `marks` int default 0;
 alter table akp_option add column `active` boolean default true;
+
+-- new
+
+-- new table lov(list of value)
+create table `akp_lov`(
+	`id` int not null primary key auto_increment,
+    `group` varchar(32) not null,
+    `abbr` varchar(8) not null unique,
+    `meaning` varchar(128) not null,
+    `who_created` varchar(256) not null,
+    `when_created` timestamp default current_timestamp,
+    key `fk_lov_uid`(`who_created`),
+    constraint `fk_lov_uid` foreign key (`who_created`) references `admin`(`admin_id`) on update cascade on delete cascade
+) engine=InnoDB default charset=utf8mb4;
  

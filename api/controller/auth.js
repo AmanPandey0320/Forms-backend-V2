@@ -25,7 +25,11 @@ const sign_up = async (req, res) => {
 
     status = `user with user_id: "${result.msg.user_id} was created`;
     logs.add_log(ip, endpoint, info, status);
-    res.cookie("akp_auth_token", result.msg.auth_token, { path: "/",sameSite: 'none',secure: true });
+    res.cookie(
+      "akp_auth_token",
+      result.msg.auth_token,
+      JSON.parse(process.env.COOKIE_CONFIG)
+    );
     return res.json({ auth_token: result.msg.auth_token });
   });
 };
@@ -55,8 +59,16 @@ const sign_in = async (req, res) => {
       status = `user with user_id " ${result.msg.user_id} " signed in.`;
       logs.add_log(ip, endpoint, info, status);
       //sending cookies
-      res.cookie("akp_auth_token", auth_token, { path: "/",sameSite: 'none',secure: true });
-      res.cookie("akp_form_session_id", sid, { path: "/",sameSite: 'none',secure: true });
+      res.cookie(
+        "akp_auth_token",
+        auth_token,
+        JSON.parse(process.env.COOKIE_CONFIG)
+      );
+      res.cookie(
+        "akp_form_session_id",
+        sid,
+        JSON.parse(process.env.COOKIE_CONFIG)
+      );
       /**
        * sending reponse
        */
@@ -109,8 +121,16 @@ const google = async (req, res) => {
         messages: [{ type: "success", data: "Welcome!" }],
       };
       const sid = await createSession(user_id, false, ip);
-      res.cookie("akp_auth_token", auth_token, { path: "/",sameSite: 'none',secure: true });
-      res.cookie("akp_form_session_id", sid, { path: "/",sameSite: 'none',secure: true });
+      res.cookie(
+        "akp_auth_token",
+        auth_token,
+        JSON.parse(process.env.COOKIE_CONFIG)
+      );
+      res.cookie(
+        "akp_form_session_id",
+        sid,
+        JSON.parse(process.env.COOKIE_CONFIG)
+      );
       /**
        * sending mail
        */
@@ -176,7 +196,11 @@ const verify = async (req, res) => {
       },
     ],
   };
-  res.cookie("akp_auth_token", auth_token, { path: "/",sameSite: 'none',secure: true });
+  res.cookie(
+    "akp_auth_token",
+    auth_token,
+    JSON.parse(process.env.COOKIE_CONFIG)
+  );
   return res.send(resData).send();
 };
 
