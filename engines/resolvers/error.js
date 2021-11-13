@@ -2,7 +2,7 @@ const error = {
   DEFAULT: {
     code: "ERR0000000",
     message: "Some error occured!",
-    status: 200,
+    status: 500,
   },
   ER_DUP_ENTRY: {
     code: "ERR0000001",
@@ -54,6 +54,11 @@ const error = {
     message: "Server error! Please try again later",
     status: 500,
   },
+  ER_BAD_NULL_ERROR:{
+    code:"ERR0000011",
+    message:"Server error! Please try again later",
+    code:500,
+  }
 };
 
 module.exports = error;

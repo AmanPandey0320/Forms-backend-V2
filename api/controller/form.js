@@ -2,8 +2,11 @@ const resolver = require("../../engines/resolvers");
 const logs = require("../../engines/logs");
 
 class FormController {
-  constructor(service) {
-    this.service = service;
+  constructor(formService, secService, queService, optionService) {
+    this.formService = formService;
+    this.secService = secService;
+    this.queService = queService;
+    this.optionService = optionService;
   }
 
   /**
@@ -26,7 +29,10 @@ class FormController {
       data: {},
     };
     try {
-      const result = await this.service.saveAction({ ...formData, user_id });
+      const result = await this.formService.saveAction({
+        ...formData,
+        user_id,
+      });
       resData.data["result"] = { id: result, saved: true };
       resData.messages.push("form saved!");
       logStatus = "Form saved";
@@ -66,7 +72,7 @@ class FormController {
       data: {},
     };
     try {
-      const result = await this.service.listAction(user_id);
+      const result = await this.formService.listAction(user_id);
       logStatus = "forms fetched";
       resData.data = { result };
     } catch (error) {
@@ -106,7 +112,7 @@ class FormController {
       data: {},
     };
     try {
-      const result = await this.service.populateAction(id);
+      const result = await this.formService.populateAction(id);
       logStatus = "forms fetched";
       resData.data = { result };
     } catch (error) {
@@ -127,9 +133,9 @@ class FormController {
 
   /**
    * @description creates form from template controller
-   * @param {*} req 
-   * @param {*} res 
-   * @returns 
+   * @param {*} req
+   * @param {*} res
+   * @returns
    */
   createFromTemplate = async (req, res) => {
     const { user, body } = req;
@@ -146,8 +152,36 @@ class FormController {
       data: {},
     };
     try {
-      const result = await this.service.createFromTemplate(tid, user_id);
+      const { id: fid, data: ques } = await this.formService.createFromTemplate(
+        tid,
+        user_id
+      );
+      const sid = await this.secService.saveAction({}, fid, user_id);
+      ques.forEach(async (que) => {
+        const { question, type, required } = que;
+        const { id: qid } = await this.queService.saveAction(
+          { sid, fid },
+          user_id
+        );
+        await this.queService.saveAction({
+          type,
+          required,
+          id: qid,
+          title: question,
+        });
+        if (que.options?.length > 0) {
+          que.options.forEach(async (op) => {
+            const { id: oid } = await this.optionService.saveAction(
+              { fid, sid, qid },
+              user_id
+            );
+            await this.optionService.saveAction({ id: oid, title: op });
+          });
+        }
+      });
+      const result = { id: fid };
       resData.data = { result };
+
       resData.messages.push("form created!");
       logStatus = "Form created";
     } catch (error) {

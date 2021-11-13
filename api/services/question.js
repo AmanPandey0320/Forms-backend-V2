@@ -28,7 +28,7 @@ class QuestionService {
         marks,
       } = formData;
 
-      console.log("formData--->", formData);
+      // console.log("formData--->", formData);
 
       try {
         if (Boolean(id)) {

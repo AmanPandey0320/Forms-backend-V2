@@ -190,4 +190,6 @@ create table `akp_lov`(
     key `fk_lov_uid`(`who_created`),
     constraint `fk_lov_uid` foreign key (`who_created`) references `admin`(`admin_id`) on update cascade on delete cascade
 ) engine=InnoDB default charset=utf8mb4;
+
+alter table akp_question modify column `type` varchar(4) default 'ST';
  

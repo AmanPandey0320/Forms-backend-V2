@@ -3,7 +3,7 @@ class SectionService {
   /**
    * SQL queries
    */
-  CREATE_SECTION_SQL = `INSERT INTO akp_section (fid,title,description,theme,akp_section.order,who) VALUES (?,?,?,?,?,?)`;
+  CREATE_SECTION_SQL = `INSERT INTO akp_section (fid,who) VALUES (?,?)`;
   UPDATE_SECTION_SQL = `UPDATE akp_section SET title = COALESCE(?,akp_section.title), description = COALESCE(?,akp_section.description), akp_section.order=COALESCE(?,akp_section.order), theme=COALESCE(?,akp_section.theme), last_edited = ? WHERE id = ?`;
   FETCH_ALL_SECTION_SQL = `SELECT asec.id,asec.title,asec.description,asec.theme FROM akp_section as asec WHERE asec.fid = ? AND asec.active = true ORDER BY asec.order ASC;`;
   DELETE_SECTION_SQL = `UPDATE akp_section SET akp_section.active = false WHERE id = ?`;
@@ -37,7 +37,7 @@ class SectionService {
         bind = [title, description, order, theme, last_edited, id];
       } else {
         sql = this.CREATE_SECTION_SQL;
-        bind = [fid, title, description, theme, order, uid];
+        bind = [fid, uid];
       }
 
       /**
