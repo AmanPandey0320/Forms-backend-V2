@@ -177,8 +177,6 @@ alter table akp_option add constraint fk_ofid foreign key(fid) references akp_fo
 alter table akp_option modify column `marks` int default 0;
 alter table akp_option add column `active` boolean default true;
 
--- new
-
 -- new table lov(list of value)
 create table `akp_lov`(
 	`id` int not null primary key auto_increment,
@@ -192,4 +190,5 @@ create table `akp_lov`(
 ) engine=InnoDB default charset=utf8mb4;
 
 alter table akp_question modify column `type` varchar(4) default 'ST';
- 
+  -- new
+  
