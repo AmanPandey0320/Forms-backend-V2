@@ -9,7 +9,7 @@ class FormService {
   GET_ALL_FORMS_SQL = `SELECT af.id,af.title,af.theme,af.last_edited FROM akp_forms as af JOIN users ON af.who = users.user_id WHERE users.isverified = true AND users.user_id = ?`;
   GET_ONE_FORM_SQL = `SELECT af.id,af.title,af.description,af.last_edited,af.active,af.send,af.edit,af.when,af.theme,users.name FROM akp_forms as af JOIN users ON users.user_id = af.who WHERE af.id = ?`;
   GET_ALL_SEC_SQL = `SELECT asec.id,asec.title,asec.description,asec.order,asec.theme,asec.last_edited,asec.when,asec.fid FROM akp_section as asec WHERE asec.fid = ? AND asec.active = true`;
-  GET_ALL_QUE_SQL = `SELECT aq.id,aq.title,aq.description,aq.order,aq.type,aq.when,aq.active,aq.last_edited,aq.required,aq.marks,aq.fid,aq.sid FROM akp_question as aq WHERE aq.fid = ? AND aq.active = true`;
+  GET_ALL_QUE_SQL = `SELECT aq.id,aq.title,aq.description,aq.order,aq.type,aq.when,aq.active,aq.last_edited,aq.required,aq.marks,aq.fid,aq.sid FROM akp_question as aq WHERE aq.fid = ? AND aq.active = true ORDER BY aq.order`;
   GET_ALL_OPT_SQL = `SELECT ao.id,ao.title,ao.is_right,ao.marks,ao.when,ao.last_edited,ao.fid,ao.sid,ao.qid FROM akp_option AS ao WHERE ao.fid = ? AND ao.active = true`;
   CREATE_FROM_TEMPLATE_SQL = `CALL createFromTemplate(?,?)`;
   /**

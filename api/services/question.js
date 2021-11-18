@@ -4,11 +4,14 @@ class QuestionService {
   /**
    * SQL queries
    */
-  SAVE_QUE_SQL = `INSERT INTO akp_question (fid,sid,who) VALUES (?,?,?)`;
+  SAVE_QUE_SQL = `INSERT INTO akp_question (fid,sid,who,akp_question.order) VALUES (?,?,?,?)`;
   UPDATE_QUE_SQL = `UPDATE akp_question SET title = COALESCE(?,akp_question.title), description = COALESCE(?,akp_question.description), akp_question.order = COALESCE(?,akp_question.order), akp_question.type = COALESCE(?,akp_question.type), akp_question.active = COALESCE(?,akp_question.active),required = COALESCE(?,akp_question.required),marks = COALESCE(?,akp_question.marks), last_edited = ? WHERE akp_question.id = ?`;
+  GET_ONE_QUE_SQL = `SELECT aq.id,aq.title,aq.description,aq.order,aq.type,aq.when,aq.active,aq.last_edited,aq.required,aq.marks,aq.fid,aq.sid FROM akp_question as aq WHERE aq.id = ?`;
+  GET_ALL_OPT_SQL = `SELECT ao.id,ao.title,ao.is_right,ao.marks,ao.when,ao.last_edited,ao.fid,ao.sid,ao.qid FROM akp_option AS ao WHERE ao.qid = ? AND ao.active = true`;
 
   /**
    * @description save action for question controller
+   * @public
    * @param {*} formData
    * @param {*} uid
    * @returns Promise
@@ -47,16 +50,9 @@ class QuestionService {
             new Date(),
             id,
           ];
-          pool.query(sql, bind, (error, result) => {
-            if (error) {
-              console.log(
-                "question service save action update db error---->",
-                error
-              );
-              return reject(error);
-            }
-            return resolve({ id, saved: true });
-          });
+          await pool.query(sql, bind);
+          const question = await this.#populateAction(id);
+          return resolve({ question, saved: true });
         } else {
           /**
            * creating new question
@@ -74,15 +70,10 @@ class QuestionService {
             });
           }
           const sql = this.SAVE_QUE_SQL;
-          const bind = [fid, sid, uid];
-          pool.query(sql, bind, (error, result) => {
-            if (error) {
-              console.log("question service save action db err---->", error);
-              return reject(error);
-            }
-            const { insertId: id } = result;
-            return resolve({ id, saved: true });
-          });
+          const bind = [fid, sid, uid, order];
+          const { insertId: id } = await pool.query(sql, bind);
+          const question = await this.#populateAction(id);
+          return resolve({ question, saved: true });
         }
       } catch (error) {
         console.log("question service save action error ----->", error);
@@ -90,6 +81,33 @@ class QuestionService {
       }
     });
   } // end of save action
+
+  /**
+   * @description
+   * @private
+   * @param {*} id
+   */
+  #populateAction(id) {
+    return new Promise(async (resolve, reject) => {
+      if (Boolean(id) === false) {
+        reject({
+          code: "FRM_BAD_DATA_FORMAT",
+          message: "missing form id from data",
+        });
+        return;
+      }
+      try {
+        const [question] = await pool.query(this.GET_ONE_QUE_SQL, [id]);
+        const options = await pool.query(this.GET_ALL_OPT_SQL, [id]);
+        resolve({ ...question, options });
+        return;
+      } catch (error) {
+        console.log("populate error---->", error);
+        reject(error);
+        return;
+      }
+    });
+  }
 } // end of class
 
 module.exports = QuestionService;
