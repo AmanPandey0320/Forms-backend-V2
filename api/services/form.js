@@ -63,7 +63,7 @@ class FormService {
         const sql = this.GET_ALL_FORMS_SQL;
         const bind = [uid];
         const result = await pool.query(sql, bind);
-        console.log(result);
+        // console.log(result);
         const res = result.map((sec) => {
           return {
             ...sec,
