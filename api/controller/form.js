@@ -184,7 +184,9 @@ class FormController {
         }
       });
       // console.log("options------->", options);
-      await this.optionService.multiSaveAction(options, user_id);
+      if (options.length > 0) {
+        await this.optionService.multiSaveAction(options, user_id);
+      }
       // ques.forEach(async (que) => {
       //   const { question, type, required } = que;
       //   const { id: qid } = await this.queService.saveAction(
