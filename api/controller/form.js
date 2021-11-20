@@ -157,28 +157,56 @@ class FormController {
         user_id
       );
       const sid = await this.secService.saveAction({}, fid, user_id);
-      ques.forEach(async (que) => {
-        const { question, type, required } = que;
-        const { id: qid } = await this.queService.saveAction(
-          { sid, fid },
-          user_id
-        );
-        await this.queService.saveAction({
+      let questions = [];
+      let options = [];
+      ques.forEach((que, idx) => {
+        const { question: title, type, required } = que;
+        questions.push({
+          fid,
+          sid,
           type,
+          title,
           required,
-          id: qid,
-          title: question,
+          order: idx + 1,
         });
+      });
+      const qid = await this.queService.multiSaveAction(questions, user_id);
+      ques.forEach((que, idx) => {
         if (que.options?.length > 0) {
-          que.options.forEach(async (op) => {
-            const { id: oid } = await this.optionService.saveAction(
-              { fid, sid, qid },
-              user_id
-            );
-            await this.optionService.saveAction({ id: oid, title: op });
+          que.options.forEach((op) => {
+            options.push({
+              fid,
+              sid,
+              title: op,
+              qid: qid + idx,
+            });
           });
         }
       });
+      // console.log("options------->", options);
+      await this.optionService.multiSaveAction(options, user_id);
+      // ques.forEach(async (que) => {
+      //   const { question, type, required } = que;
+      //   const { id: qid } = await this.queService.saveAction(
+      //     { sid, fid },
+      //     user_id
+      //   );
+      //   await this.queService.saveAction({
+      //     type,
+      //     required,
+      //     id: qid,
+      //     title: question,
+      //   });
+      //   if (que.options?.length > 0) {
+      //     que.options.forEach(async (op) => {
+      //       const { id: oid } = await this.optionService.saveAction(
+      //         { fid, sid, qid },
+      //         user_id
+      //       );
+      //       await this.optionService.saveAction({ id: oid, title: op });
+      //     });
+      //   }
+      // });
       const result = { id: fid };
       resData.data = { result };
 

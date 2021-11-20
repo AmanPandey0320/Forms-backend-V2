@@ -8,6 +8,7 @@ class QuestionService {
   UPDATE_QUE_SQL = `UPDATE akp_question SET title = COALESCE(?,akp_question.title), description = COALESCE(?,akp_question.description), akp_question.order = COALESCE(?,akp_question.order), akp_question.type = COALESCE(?,akp_question.type), akp_question.active = COALESCE(?,akp_question.active),required = COALESCE(?,akp_question.required),marks = COALESCE(?,akp_question.marks), last_edited = ? WHERE akp_question.id = ?`;
   GET_ONE_QUE_SQL = `SELECT aq.id,aq.title,aq.description,aq.order,aq.type,aq.when,aq.active,aq.last_edited,aq.required,aq.marks,aq.fid,aq.sid FROM akp_question as aq WHERE aq.id = ?`;
   GET_ALL_OPT_SQL = `SELECT ao.id,ao.title,ao.is_right,ao.marks,ao.when,ao.last_edited,ao.fid,ao.sid,ao.qid FROM akp_option AS ao WHERE ao.qid = ? AND ao.active = true`;
+  SAVE_MULTIPLE_QUE = `INSERT INTO akp_question (fid,sid,type,title,who,akp_question.order) VALUES`;
 
   /**
    * @description save action for question controller
@@ -103,6 +104,42 @@ class QuestionService {
         return;
       } catch (error) {
         console.log("populate error---->", error);
+        reject(error);
+        return;
+      }
+    });
+  } //end of populate
+
+  /**
+   *
+   * @param {*} questions
+   * @param {*} uid
+   * @returns
+   */
+  multiSaveAction(questions, uid) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let sql = this.SAVE_MULTIPLE_QUE;
+        let bind = [];
+        questions.forEach((que) => {
+          sql += `(?,?,?,?,?,?),`;
+          bind = [
+            ...bind,
+            que.fid,
+            que.sid,
+            que.type,
+            que.title,
+            uid,
+            que.order,
+          ];
+        });
+        sql = sql.slice(0, -1);
+        const { insertId: qid,...result } = await pool.query(sql, bind);
+        // console.log("multi save res---->", result);
+        resolve(qid);
+        return;
+      } catch (error) {
+        console.log("multi save error---->", error);
         reject(error);
         return;
       }

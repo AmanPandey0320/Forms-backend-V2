@@ -7,6 +7,7 @@ class OptionService {
   CREATE_OPTION_SQL = `INSERT INTO akp_option (fid,sid,qid,who) VALUES (?,?,?,?)`;
   UPDATE_OPTION_SQL = `UPDATE akp_option SET title = COALESCE(?,akp_option.title), is_right = COALESCE(?,akp_option.is_right), marks = COALESCE(?,akp_option.marks), akp_option.active = COALESCE(?,akp_option.active), last_edited = ? WHERE akp_option.id = ? `;
   GET_ONE_OPTION_SQL = `SELECT ao.id,ao.title,ao.is_right,ao.marks,ao.when,ao.last_edited,ao.fid,ao.sid,ao.qid FROM akp_option AS ao WHERE ao.id = ?`;
+  SAVE_MULTI_OPTIONS_SQL = `INSERT INTO akp_option (fid,sid,qid,title,who) VALUES`;
 
   /**
    * @description saves the option
@@ -101,6 +102,27 @@ class OptionService {
       }
     });
   } // end of the populate action
+
+  multiSaveAction(options, uid) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let sql = this.SAVE_MULTI_OPTIONS_SQL;
+        let bind = [];
+        options.forEach((op) => {
+          sql += `(?,?,?,?,?),`;
+          bind = [...bind, op.fid, op.sid, op.qid, op.title, uid];
+        });
+        sql = sql.slice(0, -1);
+        const result = await pool.query(sql, bind);
+        // console.log("multi save op---->", result);
+        resolve(result);
+        return;
+      } catch (error) {
+        console.log("option service multi action error ---->", error);
+        return reject(error);
+      }
+    });
+  } //end of multi save action
 }
 
 module.exports = OptionService;
