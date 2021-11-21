@@ -228,7 +228,47 @@ class FormController {
     logs.add_log(ip, endpoint, info, logStatus);
 
     return;
-  };
+  }; // end of create from template
+
+  /**
+   * 
+   * @param {*} req 
+   * @param {*} res 
+   * @returns 
+   */
+  inViewPopulateAction = async (req, res) => {
+    const { user, query } = req;
+    const { user_id } = user;
+    const { fid } = query;
+    const ip = req.connection.remoteAddress;
+    const endpoint = req.originalUrl;
+    let info = `fetching inViewPopulateAction form for user id: ${user_id} for form id: ${fid}`;
+    let logStatus = "No status updated";
+    let resStatus = 200;
+    let resData = {
+      err: [],
+      messages: [],
+      data: {},
+    };
+    try {
+      const result = await this.formService.inViewPopulateAction(fid,user_id);
+      resData.data = { result };
+      logStatus = "form sent";
+    } catch (error) {
+      console.log("form controller inViewPopulateAction action error ----->", error);
+      const { status, ...data } = resolver.resolveError(error);
+      resStatus = status;
+      logStatus = `form controller inViewPopulateAction action error -----> ${error.message}`;
+      resData.err.push(data);
+    }
+    // sending response
+    res.status(resStatus).json(resData).send();
+
+    //adding logs
+    logs.add_log(ip, endpoint, info, logStatus);
+
+    return;
+  };// end of inViewPopulateAction
 } // end of class
 
 module.exports = FormController;

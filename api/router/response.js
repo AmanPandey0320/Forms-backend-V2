@@ -1,21 +1,17 @@
 const { Router } = require("express");
-const {
-  SUBMIT,
-  FETCH_ONE,
-  EDIT_ONE,
-  FETCH_ALL,
-} = require("../controller/response");
+const { IS_VALID_SESSION } = require("../../engines/sessions/helpers");
 const { IS_AUTHENTICATED } = require("../middleware/auth");
-const {
-  IS_FORM_VALID,
-  IS_VALID_RESPONSE,
-  IS_FORM_TO_USER,
-} = require("../middleware/form");
+const ResponseService = require("../services/response");
+const ResponseController = require("../controller/response");
+
+const responceService = new ResponseService();
+const controller = new ResponseController(responceService);
+
 const router = Router();
 
-router.post("/submit", IS_AUTHENTICATED, IS_FORM_VALID, SUBMIT);
-router.post("/fetchone", IS_AUTHENTICATED, IS_VALID_RESPONSE, FETCH_ONE);
-router.post("/fetchall", IS_AUTHENTICATED, IS_FORM_TO_USER, FETCH_ALL);
-router.post("/editone", IS_AUTHENTICATED, IS_VALID_RESPONSE, EDIT_ONE);
+router.use(IS_AUTHENTICATED, IS_VALID_SESSION);
+
+router.post("/save-action", controller.saveAction);
+router.get("/populate-by-fid", controller.populateByFid);
 
 module.exports = router;

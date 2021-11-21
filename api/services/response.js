@@ -1,197 +1,76 @@
-const pool = require("../../config/db");
-const { v4 } = require("uuid");
+const { firestore } = require("../../engines/cloud/firebase");
 
-const submit_response = async (form_id, user_id, response) => {
-  return new Promise((resolve, reject) => {
-    try {
-      const response_id = v4();
-      const sql = `INSERT INTO response (response_id,user_id,form_id,response) VALUES (?,?,?,?)`;
-      pool.query(
-        sql,
-        [response_id, user_id, form_id, JSON.stringify(response)],
-        (err, result) => {
-          if (err) {
-            console.log(err);
-            return reject({
-              status: false,
-              msg: err,
-            });
-          }
-
-          if (
-            result === undefined ||
-            result.affectedRows < 1 ||
-            result.affectedRows === undefined
-          ) {
-            return reject({
-              status: false,
-              msg: {
-                code: 500,
-                message: `can not fetch data to confirm submission`,
-              },
-            });
-          }
-
-          return resolve({
-            status: true,
-            msg: {
-              code: 200,
-              message: response_id,
-            },
-          });
-        }
-      );
-    } catch (error) {
-      console.log(error);
-      return reject({
-        status: false,
-        msg: error,
-      });
-    }
-  });
-};
-
-const edit_response = async ({ response_id, response }) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const sql = `UPDATE response SET response = ?, edited_at = ? WHERE response_id = ?`;
-      const edited_at = new Date();
-
-      pool.query(
-        sql,
-        [JSON.stringify(response), edited_at, response_id],
-        (err, result) => {
-          if (err) {
-            console.log(err);
-            return reject({
-              status: false,
-              msg: err,
-            });
-          }
-
-          if (result === undefined || result.affectedRows < 1) {
-            return reject({
-              status: false,
-              msg: {
-                code: 500,
-                message: "unable to confirm edit",
-              },
-            });
-          }
-
-          return resolve({
-            status: true,
-            msg: {
-              code: 200,
-              message: `response edited successfully`,
-            },
-          });
-        }
-      );
-    } catch (error) {
-      console.log(error);
-      return reject({
-        status: false,
-        msg: error,
-      });
-    }
-  });
-};
-
-const get_response = async (response_id) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const sql = `SELECT response,submitted_at,edited_at FROM response WHERE response_id = ?`;
-      pool.query(sql, [response_id], (err, result) => {
-        if (err) {
-          console.log(err);
-          return reject({
-            status: false,
-            msg: err,
-          });
-        }
-
-        if (result === undefined || result.length == 0) {
-          return reject({
-            status: false,
-            msg: {
-              code: 500,
-              message: "unable to fetch date",
-            },
-          });
-        }
-
-        const response = JSON.parse(result[0].response);
-        const submitted_at = result[0].submitted_at;
-        const edited_at = result[0].edited_at;
-
-        return resolve({
-          status: true,
-          msg: { response, submitted_at, edited_at },
+class ResponseService {
+  /**
+   *
+   * @param {*} response
+   * @param {*} fid
+   * @param {*} user
+   * @returns
+   */
+  saveAction(response, fid, user) {
+    return new Promise(async (resolve, reject) => {
+      const { user_id: uid, name } = user;
+      if (Boolean(uid) && Boolean(name) === false) {
+        return reject({
+          code: "FRM_BAD_DATA_FORMAT",
+          message: "missing form uid or name from data",
         });
-      });
-    } catch (error) {
-      console.log(error);
-      return reject({
-        status: false,
-        msg: error,
-      });
-    }
-  });
-};
-
-const getAllResponse = async (form_id, is_test) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let sql = `SELECT response_id,response,submitted_at,edited_at FROM response WHERE form_id = ?`;
-      if (is_test) {
-        sql = `SELECT response_id,user_id,response,submitted_at,edited_at FROM response WHERE form_id = ?`;
       }
-
-      pool.query(sql, [form_id], (err, result) => {
-        if (err) {
-          console.log(err);
-          return reject({
-            status: false,
-            msg: err,
-          });
-        }
-        if (result === undefined || result.length === 0) {
-          return reject({
-            status: false,
-            msg: {
-              code: 500,
-              message: "unable to fetch data",
-            },
-          });
-        }
-
-        let responses = [],
-          response;
-        result.forEach((element) => {
-          response = element;
-          response.response = JSON.parse(element.response);
-          responses.push(response);
+      try {
+        const formCollectionRef = firestore.collection("form").doc(`${fid}`);
+        const docRef = formCollectionRef.collection("responces").doc(`${uid}`);
+        await docRef.set({
+          ...response,
+          uid: uid,
+          name: name,
+          time: Date.now(),
+          saved: true,
         });
-
-        return resolve({
-          status: true,
-          msg: responses,
+        resolve({
+          saved: true,
         });
-      });
-    } catch (error) {
-      console.log(error);
-      return reject({
-        status: false,
-        msg: error,
-      });
-    }
-  });
-};
+        return;
+      } catch (error) {
+        console.log("error response saveaction----->", error);
+        reject(error);
+        return;
+      }
+    });
+  } //end of saveAction
 
-module.exports = {
-  submit_response,
-  edit_response,
-  get_response,
-  getAllResponse,
-};
+  /**
+   * @description
+   * @param {*} fid 
+   * @returns 
+   */
+  populateByFid(fid) {
+    return new Promise(async (resolve, reject) => {
+      if (Boolean(fid) === false) {
+        return reject({
+          code: "FRM_BAD_DATA_FORMAT",
+          message: "missing form fid from data",
+        });
+      }
+      try {
+        const colRef = firestore
+          .collection("form")
+          .doc(`${fid}`)
+          .collection("responces");
+        const colSnapshot = await colRef.get();
+        let docs = [];
+        colSnapshot.forEach((doc) => {
+          docs.push(doc.data());
+        });
+        resolve(docs);
+        return;
+      } catch (error) {
+        console.log("error response populate by fid action----->", error);
+        reject(error);
+        return;
+      }
+    });
+  }
+}
+
+module.exports = ResponseService;

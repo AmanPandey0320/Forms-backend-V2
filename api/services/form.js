@@ -1,4 +1,5 @@
 const pool = require("../../config/db");
+const { firestore } = require("../../engines/cloud/firebase");
 
 class FormService {
   /**
@@ -128,9 +129,9 @@ class FormService {
 
   /**
    * @description created form from template
-   * @param {*} tid 
-   * @param {*} uid 
-   * @returns 
+   * @param {*} tid
+   * @param {*} uid
+   * @returns
    */
   createFromTemplate(tid, uid) {
     return new Promise(async (resolve, reject) => {
@@ -147,7 +148,7 @@ class FormService {
         if (procedureRes.length === 0 || Boolean(insertRes) === false) {
           return reject({
             code: "FRM_NO_DATA_AVAILABLE",
-            message:"no data availanle for precedure"
+            message: "no data availanle for precedure",
           });
         }
         const [res] = procedureRes;
@@ -169,6 +170,44 @@ class FormService {
       }
     });
   } // end of create from template
+
+  /**
+   * 
+   * @param {*} fid 
+   * @param {*} uid 
+   * @returns 
+   */
+  inViewPopulateAction(fid, uid) {
+    return new Promise(async (resolve, reject) => {
+      if (Boolean(fid) === false) {
+        return reject({
+          code: "FRM_BAD_DATA_FORMAT",
+          message: "missing form fid from data",
+        });
+      }
+      if (Boolean(uid) === false) {
+        return reject({
+          code: "FRM_BAD_DATA_FORMAT",
+          message: "missing form uid from data",
+        });
+      }
+      try {
+        const form = await this.populateAction(fid);
+        const docRef = firestore
+          .collection("form")
+          .doc(`${fid}`)
+          .collection("responces")
+          .doc(`${uid}`);
+        const snapshot = await docRef.get();
+        const allowed = !snapshot.exists;
+        const response = snapshot.data();
+        resolve({ form, response, allowed });
+      } catch (error) {
+        console.log("form service nViewPopulateAction error----->", error);
+        return reject(error);
+      }
+    });
+  }
 } // end of class
 
 module.exports = FormService;

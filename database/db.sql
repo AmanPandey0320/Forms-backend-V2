@@ -191,4 +191,15 @@ create table `akp_lov`(
 
 alter table akp_question modify column `type` varchar(4) default 'ST';
   -- new
+create table `akp_response`(
+	`id` int not null primary key auto_increment,
+    `fid` int not null,
+    `uid` varchar(256) not null,
+    `saved` boolean not null default false,
+    `when` timestamp not null default current_timestamp,
+    key `fk_res_fid`(`fid`),
+    constraint `fk_res_fid` foreign key(`fid`) references `akp_forms`(`id`) on update cascade on delete cascade,
+    key `fk_res_uid`(`uid`),
+    constraint `fk_res_uid` foreign key(`uid`) references `users`(`user_id`) on update cascade on delete cascade
+)engine=InnoDB default charset=utf8mb4;
   

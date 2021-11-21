@@ -24,5 +24,6 @@ router.post("/save-action", controller.saveAction);
 router.get("/list-action", controller.listAction);
 router.get("/populate-action", controller.populateAction);
 router.post("/create-from-template", controller.createFromTemplate);
+router.get("/in-view-populate-action", controller.inViewPopulateAction);
 
 module.exports = router;
