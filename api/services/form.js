@@ -172,10 +172,10 @@ class FormService {
   } // end of create from template
 
   /**
-   * 
-   * @param {*} fid 
-   * @param {*} uid 
-   * @returns 
+   *
+   * @param {*} fid
+   * @param {*} uid
+   * @returns
    */
   inViewPopulateAction(fid, uid) {
     return new Promise(async (resolve, reject) => {
@@ -192,14 +192,24 @@ class FormService {
         });
       }
       try {
-        const form = await this.populateAction(fid);
-        const docRef = firestore
-          .collection("form")
-          .doc(`${fid}`)
-          .collection("responces")
-          .doc(`${uid}`);
+        let form = await this.populateAction(fid);
+        const formRef = firestore.collection("form").doc(`${fid}`);
+        const sentFormRef = formRef.collection("sent_forms").doc(`${uid}`);
+        const docRef = formRef.collection("responces").doc(`${uid}`);
         const snapshot = await docRef.get();
         const allowed = !snapshot.exists;
+        if (allowed) {
+          let updateData = {};
+          updateData[uid] = true;
+          // console.log(form, JSON.parse(JSON.stringify(form)));
+          sentFormRef.set({ form: JSON.parse(JSON.stringify(form)) });
+        } else {
+          let updateData = { accepting: true };
+          updateData[uid] = true;
+          const formSnapshot = await sentFormRef.get();
+          form = formSnapshot.data();
+          form = form.form;
+        }
         const response = snapshot.data();
         resolve({ form, response, allowed });
       } catch (error) {
