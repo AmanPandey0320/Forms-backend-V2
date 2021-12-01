@@ -59,14 +59,16 @@ class ResponseService {
         const sentFormSnapshot = await sentFormRef.get();
         const colSnapshot = await colRef.get();
         let response = {};
+        let allUid = [];
         let sentForm = {};
         colSnapshot.forEach((doc) => {
+          allUid.push(doc.id);
           response[doc.id] = doc.data();
         });
         sentFormSnapshot.forEach((doc) => {
           sentForm[doc.id] = doc.data();
         });
-        resolve({ response, sentForm });
+        resolve({ response, sentForm, allUid });
         return;
       } catch (error) {
         console.log("error response populate by fid action----->", error);
