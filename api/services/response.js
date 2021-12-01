@@ -41,8 +41,8 @@ class ResponseService {
 
   /**
    * @description
-   * @param {*} fid 
-   * @returns 
+   * @param {*} fid
+   * @returns
    */
   populateByFid(fid) {
     return new Promise(async (resolve, reject) => {
@@ -53,16 +53,20 @@ class ResponseService {
         });
       }
       try {
-        const colRef = firestore
-          .collection("form")
-          .doc(`${fid}`)
-          .collection("responces");
+        const formRef = firestore.collection("form").doc(`${fid}`);
+        const colRef = formRef.collection("responces");
+        const sentFormRef = formRef.collection("sent_forms");
+        const sentFormSnapshot = await sentFormRef.get();
         const colSnapshot = await colRef.get();
-        let docs = [];
+        let response = {};
+        let sentForm = {};
         colSnapshot.forEach((doc) => {
-          docs.push(doc.data());
+          response[doc.id] = doc.data();
         });
-        resolve(docs);
+        sentFormSnapshot.forEach((doc) => {
+          sentForm[doc.id] = doc.data();
+        });
+        resolve({ response, sentForm });
         return;
       } catch (error) {
         console.log("error response populate by fid action----->", error);
