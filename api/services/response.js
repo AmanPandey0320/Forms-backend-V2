@@ -10,7 +10,7 @@ class ResponseService {
    */
   saveAction(response, fid, user) {
     return new Promise(async (resolve, reject) => {
-      const { user_id: uid, name } = user;
+      const { user_id: uid, name, email_id } = user;
       if (Boolean(uid) && Boolean(name) === false) {
         return reject({
           code: "FRM_BAD_DATA_FORMAT",
@@ -24,6 +24,7 @@ class ResponseService {
           ...response,
           uid: uid,
           name: name,
+          email: email_id,
           time: Date.now(),
           saved: true,
         });
@@ -62,8 +63,9 @@ class ResponseService {
         let allUid = [];
         let sentForm = {};
         colSnapshot.forEach((doc) => {
-          allUid.push(doc.id);
-          response[doc.id] = doc.data();
+          const data = doc.data();
+          allUid.push({ id: data.uid, name: data.name, email: data.email });
+          response[doc.id] = data;
         });
         sentFormSnapshot.forEach((doc) => {
           sentForm[doc.id] = doc.data();
