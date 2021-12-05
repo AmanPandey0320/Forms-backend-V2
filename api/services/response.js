@@ -68,7 +68,7 @@ class ResponseService {
           response[doc.id] = data;
         });
         sentFormSnapshot.forEach((doc) => {
-          sentForm[doc.id] = doc.data();
+          sentForm[doc.id] = doc.data()?.form;
         });
         resolve({ response, sentForm, allUid });
         return;
