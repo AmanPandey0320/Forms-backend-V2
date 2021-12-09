@@ -20,7 +20,7 @@ class FormController {
     const { formData } = body;
     const ip = req.connection.remoteAddress;
     const endpoint = req.originalUrl;
-    const info = `saving a form id: ${body.formData.id} user id{${user_id}}`;
+    const info = `saving a form id: ${formData?.id} user id{${user_id}}`;
     let logStatus = "No status updated";
     let resStatus = 200;
     let resData = {
@@ -33,6 +33,13 @@ class FormController {
         ...formData,
         user_id,
       });
+      if (Boolean(formData?.id) === false) {
+        /**
+         * if new form create new section
+         */
+        const sid = await this.secService.saveAction({}, result, user_id);
+        await this.queService.saveAction({ sid, fid: result }, user_id);
+      }
       resData.data["result"] = { id: result, saved: true };
       resData.messages.push("form saved!");
       logStatus = "Form saved";
@@ -231,10 +238,10 @@ class FormController {
   }; // end of create from template
 
   /**
-   * 
-   * @param {*} req 
-   * @param {*} res 
-   * @returns 
+   *
+   * @param {*} req
+   * @param {*} res
+   * @returns
    */
   inViewPopulateAction = async (req, res) => {
     const { user, query } = req;
@@ -251,11 +258,14 @@ class FormController {
       data: {},
     };
     try {
-      const result = await this.formService.inViewPopulateAction(fid,user_id);
+      const result = await this.formService.inViewPopulateAction(fid, user_id);
       resData.data = { result };
       logStatus = "form sent";
     } catch (error) {
-      console.log("form controller inViewPopulateAction action error ----->", error);
+      console.log(
+        "form controller inViewPopulateAction action error ----->",
+        error
+      );
       const { status, ...data } = resolver.resolveError(error);
       resStatus = status;
       logStatus = `form controller inViewPopulateAction action error -----> ${error.message}`;
@@ -268,7 +278,7 @@ class FormController {
     logs.add_log(ip, endpoint, info, logStatus);
 
     return;
-  };// end of inViewPopulateAction
+  }; // end of inViewPopulateAction
 } // end of class
 
 module.exports = FormController;
