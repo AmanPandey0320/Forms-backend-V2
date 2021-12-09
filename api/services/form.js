@@ -5,7 +5,7 @@ class FormService {
   /**
    * SQL queries
    */
-  CREATE_FORM_SQL = `INSERT INTO akp_forms (title,theme,description,who) VALUES (?,?,?,?)`;
+  CREATE_FORM_SQL = `INSERT INTO akp_forms (theme,who) VALUES (?,?)`;
   UPDATE_FORM_SQL = `UPDATE akp_forms SET title = COALESCE(?,akp_forms.title), description = COALESCE(?,akp_forms.description),theme = COALESCE(?,akp_forms.theme), active = COALESCE(?,akp_forms.active), edit = COALESCE(?,akp_forms.edit), send = COALESCE(?,akp_forms.send), akp_forms.last_edited = ? WHERE akp_forms.id = ?`;
   GET_ALL_FORMS_SQL = `SELECT af.id,af.title,af.theme,af.last_edited FROM akp_forms as af JOIN users ON af.who = users.user_id WHERE users.isverified = true AND users.user_id = ?`;
   GET_ONE_FORM_SQL = `SELECT af.id,af.title,af.description,af.last_edited,af.active,af.send,af.edit,af.when,af.theme,users.name FROM akp_forms as af JOIN users ON users.user_id = af.who WHERE af.id = ?`;
@@ -25,7 +25,7 @@ class FormService {
       if (theme) {
         theme = JSON.stringify(theme);
       } else {
-        theme = `{"bgColor":"#1f9eff","color":"#99d3ff","header":null}`;
+        theme = `{"bgColor":"#99d3ff","color":"#1f9eff","header":null}`;
       }
       let sql = "";
       let bind = [];
@@ -34,7 +34,7 @@ class FormService {
         bind = [title, description, theme, active, edit, send, new Date(), id];
       } else {
         sql = this.CREATE_FORM_SQL;
-        bind = [title, theme, description, user_id];
+        bind = [theme, user_id];
       }
       try {
         pool.query(sql, bind, (error, result) => {

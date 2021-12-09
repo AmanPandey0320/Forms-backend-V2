@@ -38,7 +38,10 @@ class FormController {
          * if new form create new section
          */
         const sid = await this.secService.saveAction({}, result, user_id);
-        await this.queService.saveAction({ sid, fid: result }, user_id);
+        await this.queService.saveAction(
+          { sid, fid: result, order: 1 },
+          user_id
+        );
       }
       resData.data["result"] = { id: result, saved: true };
       resData.messages.push("form saved!");
