@@ -24,6 +24,8 @@ class FormService {
         formData;
       if (theme) {
         theme = JSON.stringify(theme);
+      } else {
+        theme = `{"bgColor":"#1f9eff","color":"#99d3ff","header":null}`;
       }
       let sql = "";
       let bind = [];
