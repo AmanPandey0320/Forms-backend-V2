@@ -200,7 +200,7 @@ const updateone = async (req, res) => {
     } else {
       status = `updating failed with message: ${update_result.msg.message} for form with id : ${form_id}`;
       logs.add_log(ip, endpoint, info, status);
-      return res.status(500).json(update_result).send();
+      return res.status(500).json(update_result);
     }
   } catch (error) {
     console.log(error, "aman");

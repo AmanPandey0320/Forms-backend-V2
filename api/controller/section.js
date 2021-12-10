@@ -37,7 +37,7 @@ class SectionController {
       resData.err.push(data);
     }
     // sending response
-    res.status(resStatus).json(resData).send();
+    res.status(resStatus).json(resData);
 
     //adding logs
     logs.add_log(ip, endpoint, info, logStatus);
@@ -76,7 +76,7 @@ class SectionController {
       logStatus = error.message;
       resData.err.push(data);
     }
-    res.status(resStatus).json(resData).send();
+    res.status(resStatus).json(resData);
     logs.add_log(ip, endpoint, info, logStatus);
     return;
   }; // end of delete action
@@ -111,7 +111,7 @@ class SectionController {
       logStatus = error.message;
       resData.err.push(data);
     }
-    res.status(resStatus).json(resData).send();
+    res.status(resStatus).json(resData);
     logs.add_log(ip, endpoint, info, logStatus);
     return;
   }; // end of fetchSecByFormID

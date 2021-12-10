@@ -30,7 +30,7 @@ const IS_VALID_SESSION = async (req, res, next) => {
           messages: [],
           data: [],
         };
-        res.status(status).json(ress).send();
+        res.status(status).json(ress);
         return;
       }
       const [currSession] = result;
@@ -47,7 +47,7 @@ const IS_VALID_SESSION = async (req, res, next) => {
           messages: [],
           data: [],
         };
-        res.status(status).json(resp).send();
+        res.status(status).json(resp);
         return;
       }
 
@@ -94,7 +94,7 @@ const IS_VALID_SESSION = async (req, res, next) => {
               messages: ["last session logged out"],
               data: [],
             };
-            res.status(status).json(resp).send();
+            res.status(status).json(resp);
           })
           .catch((failed) => {
             const { status, ...data } = resolvers.resolveError(failed);
@@ -103,7 +103,7 @@ const IS_VALID_SESSION = async (req, res, next) => {
               messages: ["please signin again!"],
               data: [],
             };
-            res.status(status).json(resp).send();
+            res.status(status).json(resp);
           })
           .finally(() => {
             return;
@@ -121,7 +121,7 @@ const IS_VALID_SESSION = async (req, res, next) => {
           messages: ["last session logged out"],
           data: [],
         };
-        res.status(status).json(resp).send();
+        res.status(status).json(resp);
       }
     });
   } catch (error) {
@@ -132,7 +132,7 @@ const IS_VALID_SESSION = async (req, res, next) => {
       messages: [],
       data: [],
     };
-    res.status(status).json(ress).send();
+    res.status(status).json(ress);
   }
 };
 

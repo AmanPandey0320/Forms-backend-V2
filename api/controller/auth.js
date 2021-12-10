@@ -72,7 +72,7 @@ const sign_in = async (req, res) => {
       /**
        * sending reponse
        */
-      return res.json({ auth_token, email_id }).send();
+      return res.json({ auth_token, email_id });
     });
   } catch (error) {
     status = `signing in failed with error${JSON.stringify(err)}`;
@@ -137,7 +137,7 @@ const google = async (req, res) => {
       if (email_id) {
         // sendMail(email_id, TML0000001.subject, TML0000001.body([name, ip]));
       }
-      return res.json(resData).send();
+      return res.json(resData);
     } else {
       status = `signing in failed with error${JSON.stringify(result.msg)}`;
       logs.add_log(ip, endpoint, info, status);
@@ -201,7 +201,7 @@ const verify = async (req, res) => {
     auth_token,
     JSON.parse(process.env.COOKIE_CONFIG)
   );
-  return res.send(resData).send();
+  return res.send(resData);
 };
 
 /**
@@ -223,7 +223,7 @@ const signOut = async (req, res) => {
       data: [result],
     };
     logs.add_log(ip, endpoint, info, "logged out!!");
-    res.status(200).json(resp).send();
+    res.status(200).json(resp);
   } catch (error) {
     const { status, ...data } = resolvers.resolveError(error);
     const resp = {
@@ -232,7 +232,7 @@ const signOut = async (req, res) => {
       data: [],
     };
     logs.add_log(ip, endpoint, info, "error logging out");
-    res.status(status).json(resp).send();
+    res.status(status).json(resp);
   }
 };
 

@@ -42,7 +42,7 @@ class QuestionController {
       resData.err.push(data);
     }
     // sending response
-    res.status(resStatus).json(resData).send();
+    res.status(resStatus).json(resData);
 
     //adding logs
     logs.add_log(ip, endpoint, info, logStatus);
