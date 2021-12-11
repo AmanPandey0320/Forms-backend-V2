@@ -5,8 +5,8 @@ class QuestionService {
    * SQL queries
    */
   SAVE_QUE_SQL = `INSERT INTO akp_question (fid,sid,who,akp_question.order) VALUES (?,?,?,?)`;
-  UPDATE_QUE_SQL = `UPDATE akp_question SET title = COALESCE(?,akp_question.title), description = COALESCE(?,akp_question.description), akp_question.order = COALESCE(?,akp_question.order), akp_question.type = COALESCE(?,akp_question.type), akp_question.active = COALESCE(?,akp_question.active),required = COALESCE(?,akp_question.required),marks = COALESCE(?,akp_question.marks), last_edited = ? WHERE akp_question.id = ?`;
-  GET_ONE_QUE_SQL = `SELECT aq.id,aq.title,aq.description,aq.order,aq.type,aq.when,aq.active,aq.last_edited,aq.required,aq.marks,aq.fid,aq.sid FROM akp_question as aq WHERE aq.id = ?`;
+  UPDATE_QUE_SQL = `UPDATE akp_question SET title = COALESCE(?,akp_question.title), description = COALESCE(?,akp_question.description), akp_question.order = COALESCE(?,akp_question.order), akp_question.type = COALESCE(?,akp_question.type), akp_question.active = COALESCE(?,akp_question.active),required = COALESCE(?,akp_question.required),marks = COALESCE(?,akp_question.marks),attachment=COALESCE(?,akp_question.attachment), last_edited = ? WHERE akp_question.id = ?`;
+  GET_ONE_QUE_SQL = `SELECT aq.id,aq.title,aq.description,aq.order,aq.type,aq.when,aq.active,aq.last_edited,aq.required,aq.marks,aq.fid,aq.attachment,aq.sid FROM akp_question as aq WHERE aq.id = ?`;
   GET_ALL_OPT_SQL = `SELECT ao.id,ao.title,ao.is_right,ao.marks,ao.when,ao.last_edited,ao.fid,ao.sid,ao.qid FROM akp_option AS ao WHERE ao.qid = ? AND ao.active = true`;
   SAVE_MULTIPLE_QUE = `INSERT INTO akp_question (fid,sid,type,title,who,akp_question.order) VALUES`;
 
@@ -30,6 +30,7 @@ class QuestionService {
         active,
         required,
         marks,
+        attachment,
       } = formData;
 
       // console.log("formData--->", formData);
@@ -48,6 +49,7 @@ class QuestionService {
             active,
             required,
             marks,
+            attachment,
             new Date(),
             id,
           ];
@@ -134,7 +136,7 @@ class QuestionService {
           ];
         });
         sql = sql.slice(0, -1);
-        const { insertId: qid,...result } = await pool.query(sql, bind);
+        const { insertId: qid, ...result } = await pool.query(sql, bind);
         // console.log("multi save res---->", result);
         resolve(qid);
         return;

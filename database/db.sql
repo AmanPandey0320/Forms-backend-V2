@@ -203,3 +203,4 @@ create table `akp_response`(
     constraint `fk_res_uid` foreign key(`uid`) references `users`(`user_id`) on update cascade on delete cascade
 )engine=InnoDB default charset=utf8mb4;
   
+alter table akp_question add column `attachment` varchar(256);
