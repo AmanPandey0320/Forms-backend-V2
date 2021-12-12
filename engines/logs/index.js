@@ -1,6 +1,6 @@
 const pool = require("../../config/db");
 
-const add_log = async (ip, endpoint, info, status) => {
+const add_log = async (ip, endpoint, info, status="unknown") => {
   return new Promise(async (resolve, reject) => {
     try {
       const sql = `INSERT INTO logs (info,ip,endpoint,status,timestamp) VALUES (?,?,?,?,?)`;

@@ -25,8 +25,8 @@ class SectionController {
         data: {},
       };
     try {
-      const result = await this.service.saveAction(sec, fid, user_id);
-      resData.data["result"] = { id: result, saved: true };
+      const { result, id } = await this.service.saveAction(sec, fid, user_id);
+      resData.data["result"] = { id, result, saved: true };
       resData.messages.push("section saved!");
       logStatus = "Section saved";
     } catch (error) {

@@ -8,6 +8,7 @@ class SectionService {
   FETCH_ALL_SECTION_SQL = `SELECT asec.id,asec.title,asec.description,asec.theme FROM akp_section as asec WHERE asec.fid = ? AND asec.active = true ORDER BY asec.order ASC;`;
   DELETE_SECTION_SQL = `UPDATE akp_section SET akp_section.active = false WHERE id = ?`;
   ACTIVE_SECTION_SQL = `UPDATE akp_section SET akp_section.active = true WHERE id = ?`;
+  FETCH_ONE_SECTION_SQL = `SELECT asec.id,asec.title,asec.description,asec.theme,asec.fid FROM akp_section as asec WHERE asec.id = ? AND asec.active = true;`;
 
   /**
    * @description handles section save
@@ -45,13 +46,40 @@ class SectionService {
        * pushing to DB
        */
       try {
-        pool.query(sql, bind, (error, result) => {
-          if (error) {
-            console.log("section service error----->", error);
-            return reject(error);
+        pool.query(sql, bind, (error1, result) => {
+          if (error1) {
+            console.log("section service error1----->", error1);
+            return reject(error1);
           }
-          const { insertId } = result;
-          return resolve(insertId);
+          let { insertId } = result;
+          if (insertId === 0) {
+            insertId = id;
+          }
+          if (insertId != 0) {
+            pool.query(
+              this.FETCH_ONE_SECTION_SQL,
+              [insertId],
+              (error2, result2) => {
+                if (error2) {
+                  console.log("section service error2----->", error2);
+                  return reject(error2);
+                }
+                if (result2.length === 0) {
+                  return reject({
+                    code: "FRM_NO_DATA_AVAILABLE",
+                    message: "no data was found, array was empty!",
+                  });
+                }
+                const res = result2.map((sec) => {
+                  return {
+                    ...sec,
+                    theme: JSON.parse(sec.theme),
+                  };
+                });
+                return resolve({ id: insertId, result: res[0]});
+              }
+            );
+          }
         });
       } catch (error) {
         console.log("section service error----->", error);

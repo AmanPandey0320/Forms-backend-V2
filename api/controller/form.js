@@ -166,7 +166,7 @@ class FormController {
         tid,
         user_id
       );
-      const sid = await this.secService.saveAction({}, fid, user_id);
+      const { id: sid } = await this.secService.saveAction({}, fid, user_id);
       let questions = [];
       let options = [];
       ques.forEach((que, idx) => {
