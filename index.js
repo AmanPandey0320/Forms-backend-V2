@@ -36,7 +36,7 @@ app.use("/admin", require("./Routes/index"));
 app.use("/api", require("./api/router"));
 app.use("/gql", require("./gql-api/routes"));
 
-server.listen(port, () =>
-  {console.log(`Example app listening on port ${port}!`);
-  console.log(process.env)}
-);
+server.listen(port, () => {
+  console.log(`Example app listening on port ${port}!`);
+  // console.log(process.env)
+});

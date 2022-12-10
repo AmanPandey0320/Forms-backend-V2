@@ -8,6 +8,11 @@ const storage = new Storage({
   projectId: projectID,
   keyFilename: "serviceAccountKey.json",
 });
+const options = {
+  version: 'v4',
+  action: 'read',
+  expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+}
 
 const bucket = storage.bucket(bucket_name);
 
@@ -41,14 +46,22 @@ const uploadToCloud = async (file) => {
       });
     });
 
-    blobStream.on("finish", () => {
-      return resolve({
-        status: true,
-        msg: {
-          code: 200,
-          message: newFileName,
-        },
-      });
+    blobStream.on("finish", async () => {
+      try {
+        const [url] = await uploadTask.getSignedUrl(options);
+        return resolve({
+          status: true,
+          msg: {
+            code: 200,
+            message: url,
+          },
+        });
+      } catch (error) {
+        return reject({
+          status: false,
+          msg: error,
+        });
+      }
     });
 
     blobStream.end(file.buffer);
